@@ -196,10 +196,6 @@ export default function Login() {
               {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
-
-          <p className="text-center text-sm text-muted-foreground mt-8">
-            Government of India Initiative for Sustainable Development
-          </p>
         </div>
       </div>
     </div>
