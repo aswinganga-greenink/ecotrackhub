@@ -37,8 +37,8 @@ export function Sidebar() {
             <Leaf className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-display font-bold text-lg text-foreground">EcoTrack</h1>
-            <p className="text-xs text-muted-foreground">Carbon Footprint</p>
+            <h1 className="font-display font-bold text-lg text-foreground">Carbon Track</h1>
+            <p className="text-xs text-muted-foreground">Footprint Tracker</p>
           </div>
         </div>
       </div>
