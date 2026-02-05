@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+import { api } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Zap, 
-  Fuel, 
-  Car, 
-  Trash2, 
-  Droplets, 
-  Sun, 
+import {
+  Zap,
+  Fuel,
+  Car,
+  Trash2,
+  Droplets,
+  Sun,
   TreePine,
   Save,
   RotateCcw
@@ -56,6 +58,7 @@ export default function DataEntry() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleInputChange = (key: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -63,7 +66,7 @@ export default function DataEntry() {
 
   const validateForm = (): boolean => {
     const numericFields = ['electricityKwh', 'dieselLiters', 'petrolLiters', 'wasteKg', 'waterLiters', 'solarUnits', 'treesPlanted'];
-    
+
     for (const field of numericFields) {
       const value = formData[field as keyof FormData];
       if (value && (isNaN(Number(value)) || Number(value) < 0)) {
@@ -80,21 +83,53 @@ export default function DataEntry() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
+    if (!user) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to submit data.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Data Submitted",
-      description: `Monthly data for ${formData.month} ${formData.year} has been saved successfully.`,
-    });
-    
-    setFormData(initialFormData);
-    setIsSubmitting(false);
+
+    try {
+      const payload = {
+        month: formData.month,
+        year: Number(formData.year),
+        electricity_kwh: Number(formData.electricityKwh),
+        diesel_liters: Number(formData.dieselLiters),
+        petrol_liters: Number(formData.petrolLiters),
+        waste_kg: Number(formData.wasteKg),
+        water_liters: Number(formData.waterLiters),
+        solar_units: Number(formData.solarUnits),
+        trees_planted: Number(formData.treesPlanted),
+        user_id: user.id,
+        panchayat_id: user.panchayatId // Add this if available in user object
+      };
+
+      await api.createMonthlyData(payload as any); // Type assertion needed due to userId requirement in backend types vs usage
+
+      toast({
+        title: "Data Submitted",
+        description: `Monthly data for ${formData.month} ${formData.year} has been saved successfully.`,
+      });
+
+      setFormData(initialFormData);
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Submission Failed",
+        description: error instanceof Error ? error.message : "Failed to save data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -227,19 +262,19 @@ export default function DataEntry() {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              type="submit" 
-              variant="hero" 
-              size="lg" 
+            <Button
+              type="submit"
+              variant="hero"
+              size="lg"
               className="flex-1"
               disabled={isSubmitting}
             >
               <Save className="w-5 h-5 mr-2" />
               {isSubmitting ? 'Submitting...' : 'Submit Data'}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               size="lg"
               onClick={handleReset}
             >

@@ -1,0 +1,302 @@
+[
+    {
+        "name": "Adat",
+        "district": "Thrissur",
+        "state": "Kerala",
+        "id": "adat_thrissur"
+    },
+    {
+        "name": "Agali",
+        "district": "Palakkad",
+        "state": "Kerala",
+        "id": "agali_palakkad"
+    },
+    {
+        "name": "Ajal",
+        "district": "Kasaragod",
+        "state": "Kerala",
+        "id": "ajal_kasaragod"
+    },
+    {
+        "name": "Alagappanagar",
+        "district": "Thrissur",
+        "state": "Kerala",
+        "id": "alagappanagar_thrissur"
+    },
+    {
+        "name": "Alanallur",
+        "district": "Palakkad",
+        "state": "Kerala",
+        "id": "alanallur_palakkad"
+    },
+    {
+        "name": "Alangad",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "id": "alangad_ernakulam"
+    },
+    {
+        "name": "Alathur",
+        "district": "Palakkad",
+        "state": "Kerala",
+        "id": "alathur_palakkad"
+    },
+    {
+        "name": "Alayamon",
+        "district": "Kollam",
+        "state": "Kerala",
+        "id": "alayamon_kollam"
+    },
+    {
+        "name": "Aluva",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "id": "aluva_ernakulam"
+    },
+    {
+        "name": "Ambalapuzha North",
+        "district": "Alappuzha",
+        "state": "Kerala",
+        "id": "ambalapuzha_north_alappuzha"
+    },
+    {
+        "name": "Ambalapuzha South",
+        "district": "Alappuzha",
+        "state": "Kerala",
+        "id": "ambalapuzha_south_alappuzha"
+    },
+    {
+        "name": "Amballur",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "id": "amballur_ernakulam"
+    },
+    {
+        "name": "Amboori",
+        "district": "Thiruvananthapuram",
+        "state": "Kerala",
+        "id": "amboori_tvm"
+    },
+    {
+        "name": "Anad",
+        "district": "Thiruvananthapuram",
+        "state": "Kerala",
+        "id": "anad_tvm"
+    },
+    {
+        "name": "Anakkara",
+        "district": "Palakkad",
+        "state": "Kerala",
+        "id": "anakkara_palakkad"
+    },
+    {
+        "name": "Angadi",
+        "district": "Pathanamthitta",
+        "state": "Kerala",
+        "id": "angadi_pathanamthitta"
+    },
+    {
+        "name": "Angamaly",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "id": "angamaly_ernakulam"
+    },
+    {
+        "name": "Anjukunnu",
+        "district": "Wayanad",
+        "state": "Kerala",
+        "id": "anjukunnu_wayanad"
+    },
+    {
+        "name": "Arakuzha",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "id": "arakuzha_ernakulam"
+    },
+    {
+        "name": "Aranmula",
+        "district": "Pathanamthitta",
+        "state": "Kerala",
+        "id": "aranmula_pathanamthitta"
+    },
+    {
+        "name": "Areekode",
+        "district": "Malappuram",
+        "state": "Kerala",
+        "id": "areekode_malappuram"
+    },
+    {
+        "name": "Arimpur",
+        "district": "Thrissur",
+        "state": "Kerala",
+        "id": "arimpur_thrissur"
+    },
+    {
+        "name": "Arookutty",
+        "district": "Alappuzha",
+        "state": "Kerala",
+        "id": "arookutty_alappuzha"
+    },
+    {
+        "name": "Aroor",
+        "district": "Alappuzha",
+        "state": "Kerala",
+        "id": "aroor_alappuzha"
+    },
+    {
+        "name": "Aryanad",
+        "district": "Thiruvananthapuram",
+        "state": "Kerala",
+        "id": "aryanad_tvm"
+    },
+    {
+        "name": "Athirampuzha",
+        "district": "Kottayam",
+        "state": "Kerala",
+        "id": "athirampuzha_kottayam"
+    },
+    {
+        "name": "Atholi",
+        "district": "Kozhikode",
+        "state": "Kerala",
+        "id": "atholi_kozhikode"
+    },
+    {
+        "name": "Avanoor",
+        "district": "Thrissur",
+        "state": "Kerala",
+        "id": "avanoor_thrissur"
+    },
+    {
+        "name": "Ayarkunnam",
+        "district": "Kottayam",
+        "state": "Kerala",
+        "id": "ayarkunnam_kottayam"
+    },
+    {
+        "name": "Ayiroor",
+        "district": "Pathanamthitta",
+        "state": "Kerala",
+        "id": "ayiroor_pathanamthitta"
+    },
+    {
+        "name": "Ayvana",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "id": "ayvana_ernakulam"
+    },
+    {
+        "name": "Ayyampuzha",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "id": "ayyampuzha_ernakulam"
+    },
+    {
+        "name": "Azhiyoor",
+        "district": "Kozhikode",
+        "state": "Kerala",
+        "id": "azhiyoor_kozhikode"
+    },
+    {
+        "name": "Balal",
+        "district": "Kasaragod",
+        "state": "Kerala",
+        "id": "balal_kasaragod"
+    },
+    {
+        "name": "Balaramapuram",
+        "district": "Thiruvananthapuram",
+        "state": "Kerala",
+        "id": "balaramapuram_tvm"
+    },
+    {
+        "name": "Balussery",
+        "district": "Kozhikode",
+        "state": "Kerala",
+        "id": "balussery_kozhikode"
+    },
+    {
+        "name": "Bedadka",
+        "district": "Kasaragod",
+        "state": "Kerala",
+        "id": "bedadka_kasaragod"
+    },
+    {
+        "name": "Bellasur",
+        "district": "Wayanad",
+        "state": "Kerala",
+        "id": "bellasur_wayanad"
+    },
+    {
+        "name": "Bharananganam",
+        "district": "Kottayam",
+        "state": "Kerala",
+        "id": "bharananganam_kottayam"
+    },
+    {
+        "name": "Chakkittapara",
+        "district": "Kozhikode",
+        "state": "Kerala",
+        "id": "chakkittapara_kozhikode"
+    },
+    {
+        "name": "Chakkupallam",
+        "district": "Idukki",
+        "state": "Kerala",
+        "id": "chakkupallam_idukki"
+    },
+    {
+        "name": "Chalavara",
+        "district": "Palakkad",
+        "state": "Kerala",
+        "id": "chalavara_palakkad"
+    },
+    {
+        "name": "Chaliyar",
+        "district": "Malappuram",
+        "state": "Kerala",
+        "id": "chaliyar_malappuram"
+    },
+    {
+        "name": "Champakulam",
+        "district": "Alappuzha",
+        "state": "Kerala",
+        "id": "champakulam_alappuzha"
+    },
+    {
+        "name": "Changanassery",
+        "district": "Kottayam",
+        "state": "Kerala",
+        "id": "changanassery_kottayam"
+    },
+    {
+        "name": "Chapparapadavu",
+        "district": "Kannur",
+        "state": "Kerala",
+        "id": "chapparapadavu_kannur"
+    },
+    {
+        "name": "Chavara",
+        "district": "Kollam",
+        "state": "Kerala",
+        "id": "chavara_kollam"
+    },
+    {
+        "name": "Chekkiad",
+        "district": "Kozhikode",
+        "state": "Kerala",
+        "id": "chekkiad_kozhikode"
+    },
+    {
+        "name": "Chelakkara",
+        "district": "Thrissur",
+        "state": "Kerala",
+        "id": "chelakkara_thrissur"
+    },
+    {
+        "name": "Chellanam",
+        "district": "Ernakulam",
+        "state": "Kerala",
+        "id": "chellanam_ernakulam"
+    }
+]

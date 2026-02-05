@@ -1,0 +1,9 @@
+fastapi==0.127.0
+uvicorn[standard]==0.40.0
+sqlalchemy==2.0.45
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.21
+email-validator==2.1.0
+google-generativeai
+python-dotenv==1.0.0

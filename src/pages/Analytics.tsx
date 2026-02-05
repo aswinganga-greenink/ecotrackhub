@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import { useState, useEffect } from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   Legend,
   PieChart,
@@ -13,8 +13,7 @@ import {
   Cell
 } from 'recharts';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { mockMonthlyData } from '@/lib/mockData';
-import { getSectorEmissions, getMonthlyTrends, getCarbonMetrics } from '@/lib/carbonCalculations';
+import { api, SectorEmission, MonthlyTrend, CarbonMetricsResponse } from '@/lib/api';
 import { Download, FileText, TrendingUp, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -29,16 +28,55 @@ const COLORS = [
 
 export default function Analytics() {
   const { toast } = useToast();
-  const sectorData = useMemo(() => getSectorEmissions(mockMonthlyData), []);
-  const trendData = useMemo(() => getMonthlyTrends(mockMonthlyData), []);
-  const metrics = useMemo(() => getCarbonMetrics(mockMonthlyData), []);
+
+  // State for API data
+  const [sectorData, setSectorData] = useState<SectorEmission[]>([]);
+  const [trendData, setTrendData] = useState<MonthlyTrend[]>([]);
+  const [metrics, setMetrics] = useState<CarbonMetricsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch analytics data from backend
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Fetch all analytics data in parallel
+        const [sectorsData, trendsData, metricsData] = await Promise.all([
+          api.getAnalyticsSectors(),
+          api.getAnalyticsTrends(),
+          api.getAnalyticsMetrics()
+        ]);
+
+        setSectorData(sectorsData);
+        setTrendData(trendsData);
+        setMetrics(metricsData);
+
+      } catch (error) {
+        console.error('Failed to fetch analytics data:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load analytics data');
+
+        toast({
+          title: "Error Loading Analytics",
+          description: "Could not load analytics data. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, [toast]);
 
   const handleExport = (format: 'csv' | 'pdf') => {
     toast({
       title: `Exporting ${format.toUpperCase()}`,
       description: "Your report is being generated...",
     });
-    
+
     // Simulate export
     setTimeout(() => {
       toast({
@@ -48,9 +86,49 @@ export default function Analytics() {
     }, 1500);
   };
 
-  const topEmitter = sectorData.reduce((max, sector) => 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="space-y-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading analytics...</p>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  // Show error state or empty state
+  if (error || !metrics) {
+    return (
+      <MainLayout>
+        <div className="space-y-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-6 h-6 text-destructive" />
+              </div>
+              <p className="text-muted-foreground mb-4">{error || 'No analytics data available'}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const topEmitter = sectorData.length > 0 ? sectorData.reduce((max, sector) =>
     sector.emission > max.emission ? sector : max
-  , sectorData[0]);
+    , sectorData[0]) : { sector: 'N/A', percentage: 0 };
 
   return (
     <MainLayout>
@@ -126,29 +204,29 @@ export default function Analytics() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={sectorData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(150, 15%, 85%)" />
-                  <XAxis 
-                    dataKey="sector" 
+                  <XAxis
+                    dataKey="sector"
                     stroke="hsl(150, 10%, 45%)"
                     fontSize={12}
                     angle={-45}
                     textAnchor="end"
                     height={80}
                   />
-                  <YAxis 
+                  <YAxis
                     stroke="hsl(150, 10%, 45%)"
                     fontSize={12}
                   />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(0, 0%, 100%)', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(0, 0%, 100%)',
                       border: '1px solid hsl(150, 15%, 85%)',
                       borderRadius: '8px',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                     }}
                     formatter={(value: number) => [`${value.toFixed(2)} kg CO₂`, 'Emission']}
                   />
-                  <Bar 
-                    dataKey="emission" 
+                  <Bar
+                    dataKey="emission"
                     radius={[4, 4, 0, 0]}
                   >
                     {sectorData.map((_, index) => (
@@ -184,9 +262,9 @@ export default function Analytics() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(0, 0%, 100%)', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(0, 0%, 100%)',
                       border: '1px solid hsl(150, 15%, 85%)',
                       borderRadius: '8px'
                     }}
@@ -208,18 +286,18 @@ export default function Analytics() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(150, 15%, 85%)" />
-                <XAxis 
-                  dataKey="month" 
+                <XAxis
+                  dataKey="month"
                   stroke="hsl(150, 10%, 45%)"
                   fontSize={12}
                 />
-                <YAxis 
+                <YAxis
                   stroke="hsl(150, 10%, 45%)"
                   fontSize={12}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(0, 0%, 100%)', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(0, 0%, 100%)',
                     border: '1px solid hsl(150, 15%, 85%)',
                     borderRadius: '8px'
                   }}
@@ -256,9 +334,9 @@ export default function Analytics() {
                     <td className="py-3 px-4 text-right text-foreground">{sector.percentage.toFixed(1)}%</td>
                     <td className="py-3 px-4">
                       <div className="w-full bg-secondary rounded-full h-2">
-                        <div 
+                        <div
                           className="h-2 rounded-full transition-all duration-500"
-                          style={{ 
+                          style={{
                             width: `${sector.percentage}%`,
                             backgroundColor: COLORS[index % COLORS.length]
                           }}

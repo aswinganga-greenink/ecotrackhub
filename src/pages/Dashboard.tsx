@@ -1,20 +1,101 @@
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Cloud, TreePine, Leaf, TrendingDown } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { CarbonStatusBadge } from '@/components/dashboard/CarbonStatusBadge';
 import { EmissionChart } from '@/components/dashboard/EmissionChart';
 import { SectorPieChart } from '@/components/dashboard/SectorPieChart';
-import { mockMonthlyData } from '@/lib/mockData';
-import { getCarbonMetrics, getSectorEmissions, getMonthlyTrends } from '@/lib/carbonCalculations';
+import { api, CarbonMetricsResponse, SectorEmission, MonthlyTrend } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
   
-  const metrics = useMemo(() => getCarbonMetrics(mockMonthlyData), []);
-  const sectorData = useMemo(() => getSectorEmissions(mockMonthlyData), []);
-  const trendData = useMemo(() => getMonthlyTrends(mockMonthlyData), []);
+  // State for API data
+  const [metrics, setMetrics] = useState<CarbonMetricsResponse | null>(null);
+  const [sectorData, setSectorData] = useState<SectorEmission[]>([]);
+  const [trendData, setTrendData] = useState<MonthlyTrend[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        // Fetch all dashboard data in parallel
+        const [metricsData, sectorsData, trendsData] = await Promise.all([
+          api.getAnalyticsMetrics(),
+          api.getAnalyticsSectors(),
+          api.getAnalyticsTrends()
+        ]);
+        
+        setMetrics(metricsData);
+        setSectorData(sectorsData);
+        setTrendData(trendsData);
+        
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load dashboard data');
+        
+        toast({
+          title: "Error Loading Dashboard",
+          description: "Could not load dashboard data. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user, toast]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="space-y-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading dashboard...</p>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  // Show error state
+  if (error || !metrics) {
+    return (
+      <MainLayout>
+        <div className="space-y-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                <Cloud className="w-6 h-6 text-destructive" />
+              </div>
+              <p className="text-muted-foreground mb-4">{error || 'No data available'}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>

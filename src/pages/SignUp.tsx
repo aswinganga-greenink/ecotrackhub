@@ -1,18 +1,23 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Leaf, User, Lock } from 'lucide-react';
+import { Leaf, User, Lock, Mail, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { UserRole } from '@/types/carbon';
 
-export default function Login() {
+export default function SignUp() {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('user');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login, isLoading: authLoading } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -20,10 +25,21 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
+    // Validation
     if (!username.trim()) {
       toast({
         title: "Validation Error",
         description: "Please enter a username",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (email && !email.includes('@')) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid email address",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -40,15 +56,32 @@ export default function Login() {
       return;
     }
 
+    if (password !== confirmPassword) {
+      toast({
+        title: "Validation Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const success = await login(username, password);
+      const success = await signUp(username, email, password, role as UserRole);
       
       if (success) {
-        navigate('/dashboard');
+        toast({
+          title: "Account Created!",
+          description: "Redirecting to login...",
+        });
+        // Redirect to login after short delay
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
       }
     } catch (error) {
       // Error handling is done in the AuthContext
-      console.error('Login failed:', error);
+      console.error('Sign up failed:', error);
     } finally {
       setIsLoading(false);
     }
@@ -68,10 +101,10 @@ export default function Login() {
             <Leaf className="w-12 h-12" />
           </div>
           <h1 className="font-display text-4xl font-bold mb-4 text-center">
-            EcoTrack
+            Join EcoTrack
           </h1>
           <p className="text-lg text-primary-foreground/80 text-center max-w-md">
-            AI-Powered Carbon Footprint Tracker for Sustainable Communities
+            Create your account and start tracking your carbon footprint for a sustainable future
           </p>
           
           <div className="mt-16 grid grid-cols-2 gap-8">
@@ -87,7 +120,7 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Panel - Login Form */}
+      {/* Right Panel - SignUp Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md animate-fade-in">
           {/* Mobile Logo */}
@@ -100,17 +133,17 @@ export default function Login() {
 
           <div className="text-center mb-8">
             <h2 className="font-display text-2xl font-bold text-foreground mb-2">
-              Welcome Back
+              Create Account
             </h2>
             <p className="text-muted-foreground">
-              Sign in to access your carbon dashboard
+              Join us in tracking and reducing carbon emissions
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username */}
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Username *</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -120,13 +153,30 @@ export default function Login() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="pl-10 h-12"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email (Optional)</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 h-12"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Password *</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
@@ -136,8 +186,40 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 h-12"
+                  required
                 />
               </div>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password *</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10 h-12"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Role */}
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User - Track my emissions</SelectItem>
+                  <SelectItem value="admin">Admin - Manage panchayat data</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Submit Button */}
@@ -146,21 +228,21 @@ export default function Login() {
               variant="hero" 
               size="lg" 
               className="w-full"
-              disabled={isLoading || authLoading}
+              disabled={isLoading}
             >
-              {(isLoading || authLoading) ? 'Signing In...' : 'Sign In'}
+              {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>
 
-          {/* Sign Up Link */}
+          {/* Login Link */}
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <Link 
-                to="/signup" 
+                to="/login" 
                 className="text-primary hover:underline font-medium"
               >
-                Sign up
+                Sign in
               </Link>
             </p>
           </div>

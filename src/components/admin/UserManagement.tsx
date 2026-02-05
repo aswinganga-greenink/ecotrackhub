@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,21 +7,36 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { mockUsers, mockPanchayats } from '@/lib/mockData';
+import { mockUsers } from '@/lib/mockData';
 import { User, UserRole } from '@/types/carbon';
 import { UserPlus, Pencil, Trash2, Shield, UserIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { api, Panchayat } from '@/lib/api';
 
 export function UserManagement() {
   const [users, setUsers] = useState<User[]>(mockUsers);
+  const [panchayats, setPanchayats] = useState<Panchayat[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [newUser, setNewUser] = useState({ username: '', role: 'user' as UserRole, panchayatId: '' });
   const { toast } = useToast();
 
+  useEffect(() => {
+    const loadPanchayats = async () => {
+      try {
+        const data = await api.getPanchayats();
+        setPanchayats(data);
+      } catch (error) {
+        console.error("Failed to load panchayats", error);
+        toast({ title: 'Error', description: 'Failed to load panchayats', variant: 'destructive' });
+      }
+    };
+    loadPanchayats();
+  }, []);
+
   const getPanchayatName = (panchayatId?: string) => {
     if (!panchayatId) return 'All (Admin)';
-    const panchayat = mockPanchayats.find(p => p.id === panchayatId);
+    const panchayat = panchayats.find(p => p.id === panchayatId);
     return panchayat?.name || 'Unknown';
   };
 
@@ -83,8 +98,8 @@ export function UserManagement() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
-                <Input 
-                  id="username" 
+                <Input
+                  id="username"
                   value={newUser.username}
                   onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
                   placeholder="Enter username"
@@ -110,7 +125,7 @@ export function UserManagement() {
                       <SelectValue placeholder="Select panchayat" />
                     </SelectTrigger>
                     <SelectContent>
-                      {mockPanchayats.map(p => (
+                      {panchayats.map(p => (
                         <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -163,15 +178,15 @@ export function UserManagement() {
                           <div className="space-y-4 py-4">
                             <div className="space-y-2">
                               <Label>Username</Label>
-                              <Input 
+                              <Input
                                 value={editingUser.username}
                                 onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
                               />
                             </div>
                             <div className="space-y-2">
                               <Label>Role</Label>
-                              <Select 
-                                value={editingUser.role} 
+                              <Select
+                                value={editingUser.role}
                                 onValueChange={(value: UserRole) => setEditingUser({ ...editingUser, role: value })}
                               >
                                 <SelectTrigger>
@@ -186,15 +201,15 @@ export function UserManagement() {
                             {editingUser.role === 'user' && (
                               <div className="space-y-2">
                                 <Label>Assigned Panchayat</Label>
-                                <Select 
-                                  value={editingUser.panchayatId || ''} 
+                                <Select
+                                  value={editingUser.panchayatId || ''}
                                   onValueChange={(value) => setEditingUser({ ...editingUser, panchayatId: value })}
                                 >
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select panchayat" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {mockPanchayats.map(p => (
+                                    {panchayats.map(p => (
                                       <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                                     ))}
                                   </SelectContent>
@@ -209,9 +224,9 @@ export function UserManagement() {
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="text-destructive hover:text-destructive"
                       onClick={() => handleDeleteUser(user.id)}
                     >
