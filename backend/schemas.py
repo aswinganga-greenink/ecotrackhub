@@ -89,13 +89,13 @@ class MonthlyData(MonthlyDataBase):
 
 # Emission Factors schemas
 class EmissionFactorsBase(BaseSchema):
-    electricity: float = 0.82
-    diesel: float = 2.68
-    petrol: float = 2.31
-    waste: float = 0.6
-    water: float = 0.000344
+    electricity: float = 0.716  # CEA India Average
+    diesel: float = 2.68        # EPA standard
+    petrol: float = 2.32        # EPA standard
+    waste: float = 0.586        # DEFRA standard
+    water: float = 0.000344     # Standard water treatment
     tree_per_year: float = 21.77
-    solar_per_unit: float = 0.5
+    solar_per_unit: float = 0.716 # Matches electricity grid
 
 class EmissionFactorsCreate(EmissionFactorsBase):
     pass

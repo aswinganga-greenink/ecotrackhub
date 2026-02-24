@@ -13,12 +13,20 @@ from schemas import (
 )
 
 def calculate_emissions(monthly_data: MonthlyData, emission_factors: EmissionFactors) -> Dict[str, float]:
-    """Calculate emissions and offsets for a monthly data record."""
+    """
+    Calculate emissions and offsets for a monthly data record using the GHG Protocol methodology.
+    Core Real-World Equation: Carbon Footprint (kg CO2e) = Activity Data × Emission Factor
+    """
     
-    # Calculate emissions (positive values)
+    # Calculate emissions (Standard GHG Protocol Scopes - positive values)
+    # Scope 2: Purchased Electricity
     electricity_emissions = monthly_data.electricity_kwh * emission_factors.electricity
+    
+    # Scope 1/3: Mobile Combustion and Transport
     diesel_emissions = monthly_data.diesel_liters * emission_factors.diesel
     petrol_emissions = monthly_data.petrol_liters * emission_factors.petrol
+    
+    # Scope 3: Waste generated in operations & Water treatment
     waste_emissions = monthly_data.waste_kg * emission_factors.waste
     water_emissions = monthly_data.water_liters * emission_factors.water
     
@@ -30,8 +38,10 @@ def calculate_emissions(monthly_data: MonthlyData, emission_factors: EmissionFac
         water_emissions
     )
     
-    # Calculate offsets (negative values)
-    tree_offsets = monthly_data.trees_planted * emission_factors.tree_per_year / 12  # Monthly
+    # Calculate offsets (Carbon sequestration & avoided emissions - negative values)
+    # Tree offsets: Annual sequestration divided by 12 for monthly
+    tree_offsets = monthly_data.trees_planted * (emission_factors.tree_per_year / 12)
+    # Solar offsets: Avoided grid emissions
     solar_offsets = monthly_data.solar_units * emission_factors.solar_per_unit
     
     total_offsets = tree_offsets + solar_offsets
@@ -320,19 +330,23 @@ def seed_initial_data(db: Session):
         
         admin_user = User(
             username="admin",
-            email="admin@ecotrackhub.com",
+            email="admin@carbontrackhub.com",
             hashed_password=get_password_hash("admin123"),
             role="admin",
             is_active=True
         )
         
+        # Get the first available panchayat to assign to the demo user
+        first_panchayat = db.query(Panchayat).first()
+        panchayat_id = first_panchayat.id if first_panchayat else None
+        
         user1 = User(
-            username="chandpur_user",
-            email="chandpur@example.com",
+            username="demo_user",
+            email="demo@example.com",
             hashed_password=get_password_hash("password123"),
             role="user",
             is_active=True,
-            panchayat_id=db.query(Panchayat).filter(Panchayat.name.contains("Chandpur")).first().id
+            panchayat_id=panchayat_id
         )
         
         db.add_all([admin_user, user1])

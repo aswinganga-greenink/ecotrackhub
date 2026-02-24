@@ -68,7 +68,7 @@ export default function SignUp() {
 
     try {
       const success = await signUp(username, email, password, role as UserRole);
-      
+
       if (success) {
         toast({
           title: "Account Created!",
@@ -95,18 +95,18 @@ export default function SignUp() {
           <div className="absolute top-20 left-20 w-64 h-64 rounded-full bg-primary-foreground/20 blur-3xl" />
           <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full bg-accent/20 blur-3xl" />
         </div>
-        
+
         <div className="relative z-10 flex flex-col justify-center items-center w-full p-12 text-primary-foreground">
           <div className="w-20 h-20 rounded-2xl bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center mb-8">
             <Leaf className="w-12 h-12" />
           </div>
           <h1 className="font-display text-4xl font-bold mb-4 text-center">
-            Join EcoTrack
+            Join CarbonTrack
           </h1>
           <p className="text-lg text-primary-foreground/80 text-center max-w-md">
             Create your account and start tracking your carbon footprint for a sustainable future
           </p>
-          
+
           <div className="mt-16 grid grid-cols-2 gap-8">
             <div className="text-center">
               <p className="text-3xl font-display font-bold">50+</p>
@@ -128,7 +128,7 @@ export default function SignUp() {
             <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center">
               <Leaf className="w-7 h-7 text-primary-foreground" />
             </div>
-            <h1 className="font-display text-2xl font-bold text-foreground">EcoTrack</h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">CarbonTrack</h1>
           </div>
 
           <div className="text-center mb-8">
@@ -223,10 +223,10 @@ export default function SignUp() {
             </div>
 
             {/* Submit Button */}
-            <Button 
-              type="submit" 
-              variant="hero" 
-              size="lg" 
+            <Button
+              type="submit"
+              variant="hero"
+              size="lg"
               className="w-full"
               disabled={isLoading}
             >
@@ -238,8 +238,8 @@ export default function SignUp() {
           <div className="mt-8 text-center">
             <p className="text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link 
-                to="/login" 
+              <Link
+                to="/login"
                 className="text-primary hover:underline font-medium"
               >
                 Sign in

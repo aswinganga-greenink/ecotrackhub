@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Database URL - using SQLite for development
-DATABASE_URL = "sqlite:///./ecotrackhub.db"
+DATABASE_URL = "sqlite:///./carbontrackhub.db"
 
 # Create engine
 engine = create_engine(

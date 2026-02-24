@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database initialization script for EcoTrackHub Backend
+Database initialization script for CarbonTrackHub Backend
 """
 
 from database import create_tables, SessionLocal, engine

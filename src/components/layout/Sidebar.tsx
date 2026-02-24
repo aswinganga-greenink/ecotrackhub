@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  FileInput, 
-  BarChart3, 
-  TrendingUp, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  FileInput,
+  BarChart3,
+  TrendingUp,
+  LogOut,
   Leaf,
   User,
   Settings
@@ -37,7 +37,7 @@ export function Sidebar() {
             <Leaf className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-display font-bold text-lg text-foreground">EcoTrack</h1>
+            <h1 className="font-display font-bold text-lg text-foreground">CarbonTrack</h1>
             <p className="text-xs text-muted-foreground">Carbon Footprint</p>
           </div>
         </div>
@@ -48,15 +48,15 @@ export function Sidebar() {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
-          
+
           return (
             <Link
               key={item.path}
               to={item.path}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
-                isActive 
-                  ? "bg-primary text-primary-foreground shadow-md" 
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               )}
             >
@@ -73,15 +73,15 @@ export function Sidebar() {
             {adminNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
-              
+
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
-                    isActive 
-                      ? "bg-primary text-primary-foreground shadow-md" 
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-md"
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   )}
                 >
@@ -105,8 +105,8 @@ export function Sidebar() {
             <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
           </div>
         </div>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive"
           onClick={logout}
         >

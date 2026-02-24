@@ -31,7 +31,7 @@ from calculations import (
 
 # Create FastAPI app
 app = FastAPI(
-    title="EcoTrackHub API",
+    title="CarbonTrackHub API",
     description="Carbon footprint tracking API for Gram Panchayats",
     version="1.0.0"
 )

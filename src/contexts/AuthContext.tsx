@@ -25,6 +25,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = localStorage.getItem('auth_token');
         if (token) {
+          // Initialize API client with token
+          api.setToken(token);
+
           // Verify token by getting current user
           const currentUser = await api.getCurrentUser();
           setUser(currentUser);
@@ -45,29 +48,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (username: string, password: string, role?: UserRole): Promise<boolean> => {
     try {
       setIsLoading(true);
-      
+
       // Attempt login with backend
       const loginResponse = await api.login({ username, password });
-      
+
       // Get current user information
       const currentUser = await api.getCurrentUser();
       setUser(currentUser);
-      
+
       toast({
         title: "Login Successful",
         description: `Welcome back, ${currentUser.username}!`,
       });
-      
+
       return true;
     } catch (error) {
       console.error('Login failed:', error);
-      
+
       toast({
         title: "Login Failed",
         description: error instanceof Error ? error.message : "Invalid credentials",
         variant: "destructive",
       });
-      
+
       return false;
     } finally {
       setIsLoading(false);
@@ -77,30 +80,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (username: string, email: string, password: string, role?: UserRole): Promise<boolean> => {
     try {
       setIsLoading(true);
-      
+
       // Attempt sign-up with backend
-      await api.signUp({ 
-        username, 
-        email: email || undefined, 
-        password, 
-        role: role || "user" 
+      await api.signUp({
+        username,
+        email: email || undefined,
+        password,
+        role: role || "user"
       });
-      
+
       toast({
         title: "Sign Up Successful",
         description: "Your account has been created successfully. Please log in.",
       });
-      
+
       return true;
     } catch (error) {
       console.error('Sign up failed:', error);
-      
+
       toast({
         title: "Sign Up Failed",
         description: error instanceof Error ? error.message : "Failed to create account",
         variant: "destructive",
       });
-      
+
       return false;
     } finally {
       setIsLoading(false);
@@ -111,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     api.setToken(null);
     localStorage.removeItem('auth_token');
-    
+
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out.",

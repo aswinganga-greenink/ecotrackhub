@@ -67,13 +67,13 @@ class EmissionFactors(Base):
     __tablename__ = "emission_factors"
     
     id = Column(String, primary_key=True, default=generate_uuid)
-    electricity = Column(Float, default=0.82)  # kg CO₂ per kWh
-    diesel = Column(Float, default=2.68)  # kg CO₂ per liter
-    petrol = Column(Float, default=2.31)  # kg CO₂ per liter
-    waste = Column(Float, default=0.6)  # kg CO₂ per kg
-    water = Column(Float, default=0.000344)  # kg CO₂ per liter
-    tree_per_year = Column(Float, default=21.77)  # kg CO₂ absorbed per tree per year
-    solar_per_unit = Column(Float, default=0.5)  # kg CO₂ offset per unit
+    electricity = Column(Float, default=0.716)  # kg CO₂e per kWh (Source: CEA India Average)
+    diesel = Column(Float, default=2.68)  # kg CO₂e per liter (Source: EPA)
+    petrol = Column(Float, default=2.32)  # kg CO₂e per liter (Source: EPA)
+    waste = Column(Float, default=0.586)  # kg CO₂e per kg (Source: DEFRA/EPA average)
+    water = Column(Float, default=0.000344)  # kg CO₂e per liter (Standard Water Treatment)
+    tree_per_year = Column(Float, default=21.77)  # kg CO₂e absorbed per mature tree per year
+    solar_per_unit = Column(Float, default=0.716)  # kg CO₂e offset per kWh (Equals grid factor)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

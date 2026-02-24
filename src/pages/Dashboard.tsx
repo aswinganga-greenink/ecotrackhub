@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function Dashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   // State for API data
   const [metrics, setMetrics] = useState<CarbonMetricsResponse | null>(null);
   const [sectorData, setSectorData] = useState<SectorEmission[]>([]);
@@ -24,26 +24,26 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (!user) return;
-      
+
       try {
         setIsLoading(true);
         setError(null);
-        
+
         // Fetch all dashboard data in parallel
         const [metricsData, sectorsData, trendsData] = await Promise.all([
           api.getAnalyticsMetrics(),
           api.getAnalyticsSectors(),
           api.getAnalyticsTrends()
         ]);
-        
+
         setMetrics(metricsData);
         setSectorData(sectorsData);
         setTrendData(trendsData);
-        
+
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
         setError(error instanceof Error ? error.message : 'Failed to load dashboard data');
-        
+
         toast({
           title: "Error Loading Dashboard",
           description: "Could not load dashboard data. Please try again.",
@@ -84,7 +84,7 @@ export default function Dashboard() {
                 <Cloud className="w-6 h-6 text-destructive" />
               </div>
               <p className="text-muted-foreground mb-4">{error || 'No data available'}</p>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
               >
@@ -120,7 +120,6 @@ export default function Dashboard() {
             value={metrics.totalEmissions}
             unit="kg CO₂e"
             icon={<Cloud className="w-6 h-6" />}
-            trend={{ value: 12, isPositive: true }}
             variant="danger"
           />
           <MetricCard
@@ -128,7 +127,6 @@ export default function Dashboard() {
             value={metrics.totalOffsets}
             unit="kg CO₂e"
             icon={<TreePine className="w-6 h-6" />}
-            trend={{ value: 8, isPositive: true }}
             variant="success"
           />
           <MetricCard
@@ -159,7 +157,7 @@ export default function Dashboard() {
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
             {trendData.map((month) => (
-              <div 
+              <div
                 key={month.month}
                 className="text-center p-4 rounded-lg bg-secondary/50"
               >
