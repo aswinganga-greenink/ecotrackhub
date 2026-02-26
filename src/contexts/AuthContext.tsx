@@ -6,7 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 interface AuthContextType {
   user: User | null;
   login: (username: string, password: string, role?: UserRole) => Promise<boolean>;
-  signUp: (username: string, email: string, password: string, role?: UserRole) => Promise<boolean>;
+  requestOtp: (email: string) => Promise<boolean>;
+  signUp: (username: string, email: string, password: string, otp: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -77,16 +78,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (username: string, email: string, password: string, role?: UserRole): Promise<boolean> => {
+  const requestOtp = async (email: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      await api.requestOtp(email);
+      toast({
+        title: "OTP Sent",
+        description: `A verification code has been sent to ${email}`,
+      });
+      return true;
+    } catch (error) {
+      console.error('Failed to send OTP:', error);
+      toast({
+        title: "Failed to send OTP",
+        description: error instanceof Error ? error.message : "Internal Server Error",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signUp = async (username: string, email: string, password: string, otp: string): Promise<boolean> => {
     try {
       setIsLoading(true);
 
       // Attempt sign-up with backend
       await api.signUp({
         username,
-        email: email || undefined,
+        email,
         password,
-        role: role || "user"
+        otp
       });
 
       toast({
@@ -122,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signUp, logout, isAuthenticated: !!user, isLoading }}>
+    <AuthContext.Provider value={{ user, login, requestOtp, signUp, logout, isAuthenticated: !!user, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

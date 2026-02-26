@@ -1,22 +1,45 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { mockPanchayats, mockMonthlyData } from '@/lib/mockData';
 import { calculateEmissions, calculateOffsets, calculateNetFootprint } from '@/lib/carbonCalculations';
+import { api, Panchayat } from '@/lib/api';
+import { MonthlyData } from '@/types/carbon';
 import { Building2, Users, Leaf, Factory, TrendingDown, TrendingUp } from 'lucide-react';
 
 export function PanchayatData() {
   const [selectedPanchayat, setSelectedPanchayat] = useState<string>('all');
+  const [panchayats, setPanchayats] = useState<Panchayat[]>([]);
+  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [panchayatsData, dataResponse] = await Promise.all([
+          api.getPanchayats(),
+          api.getMonthlyData()
+        ]);
+        setPanchayats(panchayatsData);
+        setMonthlyData(dataResponse.items || []);
+      } catch (error) {
+        console.error("Failed to load panchayat data", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const panchayatMetrics = useMemo(() => {
-    return mockPanchayats.map(panchayat => {
-      const data = mockMonthlyData.filter(d => d.panchayatId === panchayat.id);
-      
+    return panchayats.map(panchayat => {
+      const data = monthlyData.filter(d => d.panchayatId === panchayat.id);
+
       let totalEmissions = 0;
       let totalOffsets = 0;
-      
+
       data.forEach(entry => {
         totalEmissions += calculateEmissions(entry);
         totalOffsets += calculateOffsets(entry);
@@ -35,10 +58,10 @@ export function PanchayatData() {
         emissionPerCapita: totalEmissions / panchayat.totalPopulation,
       };
     });
-  }, []);
+  }, [panchayats, monthlyData]);
 
-  const filteredMetrics = selectedPanchayat === 'all' 
-    ? panchayatMetrics 
+  const filteredMetrics = selectedPanchayat === 'all'
+    ? panchayatMetrics
     : panchayatMetrics.filter(p => p.id === selectedPanchayat);
 
   const totals = useMemo(() => {
@@ -61,7 +84,7 @@ export function PanchayatData() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Panchayats</p>
-                <p className="text-2xl font-bold">{mockPanchayats.length}</p>
+                <p className="text-2xl font-bold">{panchayats.length}</p>
               </div>
             </div>
           </CardContent>
@@ -114,17 +137,7 @@ export function PanchayatData() {
             <CardTitle>Panchayat Carbon Data</CardTitle>
             <CardDescription>View emissions and offsets across all regions</CardDescription>
           </div>
-          <Select value={selectedPanchayat} onValueChange={setSelectedPanchayat}>
-            <SelectTrigger className="w-[250px]">
-              <SelectValue placeholder="Filter by panchayat" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Panchayats</SelectItem>
-              {mockPanchayats.map(p => (
-                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
         </CardHeader>
         <CardContent>
           <Table>
@@ -159,7 +172,7 @@ export function PanchayatData() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Badge 
+                    <Badge
                       variant={panchayat.isNeutral ? 'default' : 'destructive'}
                       className="gap-1"
                     >
@@ -184,48 +197,52 @@ export function PanchayatData() {
       </Card>
 
       {/* Detailed Monthly Data */}
-      {selectedPanchayat !== 'all' && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Data Entries</CardTitle>
-            <CardDescription>
-              Detailed monthly records for {mockPanchayats.find(p => p.id === selectedPanchayat)?.name}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Month</TableHead>
-                  <TableHead className="text-right">Electricity (kWh)</TableHead>
-                  <TableHead className="text-right">Diesel (L)</TableHead>
-                  <TableHead className="text-right">Petrol (L)</TableHead>
-                  <TableHead className="text-right">Waste (kg)</TableHead>
-                  <TableHead className="text-right">Water (L)</TableHead>
-                  <TableHead className="text-right">Solar Units</TableHead>
-                  <TableHead className="text-right">Trees Planted</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockMonthlyData
-                  .filter(d => d.panchayatId === selectedPanchayat)
-                  .map(entry => (
-                    <TableRow key={entry.id}>
-                      <TableCell className="font-medium">{entry.month} {entry.year}</TableCell>
-                      <TableCell className="text-right">{entry.electricityKwh}</TableCell>
-                      <TableCell className="text-right">{entry.dieselLiters}</TableCell>
-                      <TableCell className="text-right">{entry.petrolLiters}</TableCell>
-                      <TableCell className="text-right">{entry.wasteKg}</TableCell>
-                      <TableCell className="text-right">{entry.waterLiters.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{entry.solarUnits}</TableCell>
-                      <TableCell className="text-right">{entry.treesPlanted}</TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Monthly Data Entries</CardTitle>
+          <CardDescription>
+            Detailed monthly records for Anjarakandi
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Month</TableHead>
+                <TableHead>User</TableHead>
+                <TableHead className="text-right">Electricity (kWh)</TableHead>
+                <TableHead className="text-right">Diesel (L)</TableHead>
+                <TableHead className="text-right">Petrol (L)</TableHead>
+                <TableHead className="text-right">Waste (kg)</TableHead>
+                <TableHead className="text-right">Water (L)</TableHead>
+                <TableHead className="text-right">Solar Units</TableHead>
+                <TableHead className="text-right">Trees Planted</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow><TableCell colSpan={9} className="text-center">Loading...</TableCell></TableRow>
+              ) : monthlyData.length === 0 ? (
+                <TableRow><TableCell colSpan={9} className="text-center">No data found</TableCell></TableRow>
+              ) : (
+                monthlyData.map(entry => (
+                  <TableRow key={entry.id}>
+                    <TableCell className="font-medium">{entry.month} {entry.year}</TableCell>
+                    <TableCell className="text-muted-foreground">{entry.username || 'Unknown'}</TableCell>
+                    <TableCell className="text-right">{entry.electricityKwh}</TableCell>
+                    <TableCell className="text-right">{entry.dieselLiters}</TableCell>
+                    <TableCell className="text-right">{entry.petrolLiters}</TableCell>
+                    <TableCell className="text-right">{entry.wasteKg}</TableCell>
+                    <TableCell className="text-right">{entry.waterLiters.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{entry.solarUnits}</TableCell>
+                    <TableCell className="text-right">{entry.treesPlanted}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }

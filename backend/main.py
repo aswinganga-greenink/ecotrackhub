@@ -8,7 +8,9 @@ import uvicorn
 
 # Import local modules
 from database import get_db, create_tables, SessionLocal
-from models import User, Panchayat, MonthlyData, EmissionFactors, CarbonMetrics
+from models import User, Panchayat, MonthlyData, EmissionFactors, CarbonMetrics, OTPVerification
+from email_service import send_otp_email
+import random
 from schemas import (
     User as UserSchema, UserCreate, UserUpdate, UserInDB,
     Panchayat as PanchayatSchema, PanchayatCreate, PanchayatUpdate,
@@ -17,7 +19,7 @@ from schemas import (
     CarbonMetrics as CarbonMetricsSchema, CarbonMetricsCreate, CarbonMetricsUpdate,
     Token, TokenData, LoginRequest, MessageResponse,
     CarbonMetricsResponse, SectorEmission, MonthlyTrend, PaginatedResponse,
-    PredictionResponse
+    PredictionResponse, OTPRequest, OTPVerify
 )
 from auth import (
     get_password_hash, verify_password, create_access_token, 
@@ -80,19 +82,60 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.post("/auth/request-otp", response_model=MessageResponse)
+async def request_otp(otp_request: OTPRequest, db: Session = Depends(get_db)):
+    """Generate and send an OTP."""
+    # Check if email is already registered
+    if db.query(User).filter(User.email == otp_request.email).first():
+        raise HTTPException(
+            status_code=400, detail="Email already registered"
+        )
+    
+    # Generate 6-digit OTP
+    otp_code = str(random.randint(100000, 999999))
+    expires_at = datetime.utcnow() + timedelta(minutes=10)
+    
+    # Check if there is already a pending OTP, delete it
+    db.query(OTPVerification).filter(OTPVerification.email == otp_request.email).delete()
+    
+    new_otp = OTPVerification(email=otp_request.email, otp=otp_code, expires_at=expires_at)
+    db.add(new_otp)
+    db.commit()
+    
+    # Send email
+    if not send_otp_email(otp_request.email, otp_code):
+        raise HTTPException(status_code=500, detail="Failed to send OTP email")
+    
+    return {"message": "OTP sent successfully"}
+
 @app.post("/auth/register", response_model=UserSchema)
-async def register(user_data: UserCreate, db: Session = Depends(get_db)):
+async def register(user_data: OTPVerify, db: Session = Depends(get_db)):
     """Register new user."""
-    # Check if user exists
+    # Validate OTP
+    otp_record = db.query(OTPVerification).filter(
+        OTPVerification.email == user_data.email, 
+        OTPVerification.otp == user_data.otp
+    ).first()
+    
+    if not otp_record:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+        
+    if otp_record.expires_at < datetime.utcnow():
+        raise HTTPException(status_code=400, detail="OTP has expired")
+        
+    # Check if user exists (again to be sure)
     if db.query(User).filter(User.username == user_data.username).first():
         raise HTTPException(
             status_code=400, detail="Username already registered"
         )
     
-    if user_data.email and db.query(User).filter(User.email == user_data.email).first():
+    if db.query(User).filter(User.email == user_data.email).first():
         raise HTTPException(
             status_code=400, detail="Email already registered"
         )
+        
+    # Delete OTP record to prevent reuse
+    db.delete(otp_record)
     
     # Create user
     hashed_password = get_password_hash(user_data.password)
@@ -100,8 +143,8 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         username=user_data.username,
         email=user_data.email,
         hashed_password=hashed_password,
-        role=user_data.role,
-        panchayat_id=user_data.panchayat_id
+        role="user",
+        panchayat_id="anjarakandi-id"
     )
     
     db.add(db_user)
@@ -282,6 +325,9 @@ async def create_monthly_data(
     """Create new monthly data entry."""
     if current_user.role == "user" and data.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Can only create data for yourself")
+    
+    if not data.panchayat_id:
+        data.panchayat_id = current_user.panchayat_id or "anjarakandi-id"
     
     db_data = MonthlyData(**data.dict())
     db.add(db_data)

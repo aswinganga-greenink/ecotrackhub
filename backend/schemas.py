@@ -33,6 +33,15 @@ class User(UserBase):
 class UserInDB(User):
     hashed_password: str
 
+class OTPRequest(BaseModel):
+    email: str
+
+class OTPVerify(BaseModel):
+    email: str
+    otp: str
+    username: str
+    password: str
+
 # Panchayat schemas
 class PanchayatBase(BaseSchema):
     name: str
@@ -84,6 +93,7 @@ class MonthlyDataUpdate(BaseSchema):
 
 class MonthlyData(MonthlyDataBase):
     id: str
+    username: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

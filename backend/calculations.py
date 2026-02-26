@@ -259,6 +259,7 @@ def get_monthly_trends(
 
 def seed_initial_data(db: Session):
     """Seed database with initial emission factors and sample data."""
+    import os
     
     # Check if emission factors exist
     existing_factors = db.query(EmissionFactors).first()
@@ -269,74 +270,36 @@ def seed_initial_data(db: Session):
     
     # Check if sample panchayats exist
     existing_panchayats = db.query(Panchayat).count()
-    if existing_panchayats < 5:  # If very few or none, seed from JSON
-        import json
-        import os
-        
-        json_path = os.path.join(os.path.dirname(__file__), "kerala_panchayats.json")
-        try:
-            with open(json_path, "r") as f:
-                panchayat_list = json.load(f)
-                
-            print(f"Seeding {len(panchayat_list)} panchayats from JSON...")
-            for p_data in panchayat_list:
-                # Check if exists
-                if not db.query(Panchayat).filter(Panchayat.id == p_data["id"]).first():
-                    # Generate a random population between 15000 and 45000 if not in JSON (it isn't)
-                    # p_data has: name, district, state, id
-                    
-                    panchayat = Panchayat(
-                        id=p_data["id"],
-                        name=f"Gram Panchayat {p_data['name']}",
-                        district=p_data["district"],
-                        state=p_data.get("state", "Kerala"),
-                        total_population=25000  # Default or random
-                    )
-                    db.add(panchayat)
-            db.commit()
-            print("Panchayats seeded successfully.")
-            
-        except FileNotFoundError:
-            print(f"Warning: {json_path} not found. Using fallback samples.")
-            sample_panchayats = [
-                Panchayat(
-                    name="Gram Panchayat Chandpur",
-                    district="Varanasi",
-                    state="Uttar Pradesh",
-                    total_population=4500
-                ),
-                Panchayat(
-                    name="Gram Panchayat Ramgarh",
-                    district="Lucknow", 
-                    state="Uttar Pradesh",
-                    total_population=3200
-                ),
-                Panchayat(
-                    name="Gram Panchayat Sundarpur",
-                    district="Patna",
-                    state="Bihar",
-                    total_population=5100
-                )
-            ]
-            
-            for panchayat in sample_panchayats:
-                db.add(panchayat)
-            db.commit()
+    if existing_panchayats == 0:
+        print("Seeding Anjarakandi Panchayat...")
+        panchayat = Panchayat(
+            id="anjarakandi-id",
+            name="Gram Panchayat Anjarakandi",
+            district="Kannur",
+            state="Kerala",
+            total_population=20000
+        )
+        db.add(panchayat)
+        db.commit()
+        print("Anjarakandi seeded successfully.")
     
     # Check if sample users exist
     existing_users = db.query(User).count()
     if existing_users == 0:
         from auth import get_password_hash
         
+        admin_username = os.getenv("ADMIN_USERNAME", "admin")
+        admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+        
         admin_user = User(
-            username="admin",
+            username=admin_username,
             email="admin@carbontrackhub.com",
-            hashed_password=get_password_hash("admin123"),
+            hashed_password=get_password_hash(admin_password),
             role="admin",
             is_active=True
         )
         
-        # Get the first available panchayat to assign to the demo user
+        # Get the first available panchayat to assign to the demo user (which will be Anjarakandi)
         first_panchayat = db.query(Panchayat).first()
         panchayat_id = first_panchayat.id if first_panchayat else None
         
@@ -351,3 +314,4 @@ def seed_initial_data(db: Session):
         
         db.add_all([admin_user, user1])
         db.commit()
+

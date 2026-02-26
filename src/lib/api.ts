@@ -24,8 +24,9 @@ export interface LoginRequest {
 
 export interface SignUpRequest {
   username: string;
-  email?: string;
+  email: string;
   password: string;
+  otp: string;
   role?: string;
   panchayat_id?: string;
 }
@@ -135,11 +136,22 @@ class ApiClient {
     return this.request<User>('/auth/me');
   }
 
+  async requestOtp(email: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>('/auth/request-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
   async signUp(userData: SignUpRequest): Promise<User> {
     return this.request<User>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
+  }
+
+  async getUsers(skip: number = 0, limit: number = 50): Promise<User[]> {
+    return this.request<User[]>(`/users/?skip=${skip}&limit=${limit}`);
   }
 
   // Data endpoints
@@ -162,7 +174,24 @@ class ApiClient {
     const queryString = searchParams.toString();
     const endpoint = `/data/${queryString ? `?${queryString}` : ''}`;
 
-    return this.request<ApiResponse<MonthlyData>>(endpoint);
+    const response = await this.request<any>(endpoint);
+    return {
+      ...response,
+      items: response.items?.map((item: any) => ({
+        ...item,
+        userId: item.user_id,
+        username: item.username,
+        panchayatId: item.panchayat_id,
+        electricityKwh: item.electricity_kwh,
+        dieselLiters: item.diesel_liters,
+        petrolLiters: item.petrol_liters,
+        wasteKg: item.waste_kg,
+        waterLiters: item.water_liters,
+        solarUnits: item.solar_units,
+        treesPlanted: item.trees_planted,
+        createdAt: item.created_at
+      }))
+    };
   }
 
   async createMonthlyData(data: Omit<MonthlyData, 'id' | 'createdAt'>): Promise<MonthlyData> {
@@ -271,7 +300,11 @@ class ApiClient {
     const queryString = searchParams.toString();
     const endpoint = `/panchayats/${queryString ? `?${queryString}` : ''}`;
 
-    return this.request<Panchayat[]>(endpoint);
+    const response = await this.request<any[]>(endpoint);
+    return response.map(p => ({
+      ...p,
+      totalPopulation: p.total_population
+    }));
   }
 
   // Health check

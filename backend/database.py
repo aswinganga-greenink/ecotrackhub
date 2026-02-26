@@ -3,8 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Database URL - using SQLite for development
-DATABASE_URL = "sqlite:///./carbontrackhub.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'carbontrackhub.db')}"
 
 # Create engine
 engine = create_engine(

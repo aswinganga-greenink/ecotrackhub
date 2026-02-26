@@ -73,17 +73,6 @@ export default function Login() {
           <p className="text-lg text-primary-foreground/80 text-center max-w-md">
             AI-Powered Carbon Footprint Tracker for Sustainable Communities
           </p>
-
-          <div className="mt-16 grid grid-cols-2 gap-8">
-            <div className="text-center">
-              <p className="text-3xl font-display font-bold">50+</p>
-              <p className="text-sm text-primary-foreground/70">Panchayats</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-display font-bold">10K+</p>
-              <p className="text-sm text-primary-foreground/70">Trees Planted</p>
-            </div>
-          </div>
         </div>
       </div>
 

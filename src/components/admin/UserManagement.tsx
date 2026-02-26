@@ -7,32 +7,33 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { mockUsers } from '@/lib/mockData';
 import { User, UserRole } from '@/types/carbon';
-import { UserPlus, Pencil, Trash2, Shield, UserIcon } from 'lucide-react';
+import { Pencil, Trash2, Shield, UserIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { api, Panchayat } from '@/lib/api';
 
 export function UserManagement() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [panchayats, setPanchayats] = useState<Panchayat[]>([]);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [newUser, setNewUser] = useState({ username: '', role: 'user' as UserRole, panchayatId: '' });
   const { toast } = useToast();
 
   useEffect(() => {
-    const loadPanchayats = async () => {
+    const loadData = async () => {
       try {
-        const data = await api.getPanchayats();
-        setPanchayats(data);
+        const [panchayatsData, usersData] = await Promise.all([
+          api.getPanchayats(),
+          api.getUsers()
+        ]);
+        setPanchayats(panchayatsData);
+        setUsers(usersData);
       } catch (error) {
-        console.error("Failed to load panchayats", error);
-        toast({ title: 'Error', description: 'Failed to load panchayats', variant: 'destructive' });
+        console.error("Failed to load admin data", error);
+        toast({ title: 'Error', description: 'Failed to load admin data', variant: 'destructive' });
       }
     };
-    loadPanchayats();
-  }, []);
+    loadData();
+  }, [toast]);
 
   const getPanchayatName = (panchayatId?: string) => {
     if (!panchayatId) return 'All (Admin)';
@@ -40,24 +41,7 @@ export function UserManagement() {
     return panchayat?.name || 'Unknown';
   };
 
-  const handleAddUser = () => {
-    if (!newUser.username) {
-      toast({ title: 'Error', description: 'Username is required', variant: 'destructive' });
-      return;
-    }
 
-    const user: User = {
-      id: Date.now().toString(),
-      username: newUser.username,
-      role: newUser.role,
-      panchayatId: newUser.role === 'user' ? newUser.panchayatId : undefined,
-    };
-
-    setUsers([...users, user]);
-    setNewUser({ username: '', role: 'user', panchayatId: '' });
-    setIsAddDialogOpen(false);
-    toast({ title: 'Success', description: 'User added successfully' });
-  };
 
   const handleUpdateUser = () => {
     if (!editingUser) return;
@@ -83,62 +67,6 @@ export function UserManagement() {
           <CardTitle>User Management</CardTitle>
           <CardDescription>Manage system users and their access levels</CardDescription>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <UserPlus className="w-4 h-4" />
-              Add User
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>Create a new user account with role and panchayat assignment</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  value={newUser.username}
-                  onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-                  placeholder="Enter username"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={newUser.role} onValueChange={(value: UserRole) => setNewUser({ ...newUser, role: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="user">User</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {newUser.role === 'user' && (
-                <div className="space-y-2">
-                  <Label htmlFor="panchayat">Assigned Panchayat</Label>
-                  <Select value={newUser.panchayatId} onValueChange={(value) => setNewUser({ ...newUser, panchayatId: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select panchayat" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {panchayats.map(p => (
-                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-              <Button onClick={handleAddUser}>Add User</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </CardHeader>
       <CardContent>
         <Table>
@@ -198,24 +126,7 @@ export function UserManagement() {
                                 </SelectContent>
                               </Select>
                             </div>
-                            {editingUser.role === 'user' && (
-                              <div className="space-y-2">
-                                <Label>Assigned Panchayat</Label>
-                                <Select
-                                  value={editingUser.panchayatId || ''}
-                                  onValueChange={(value) => setEditingUser({ ...editingUser, panchayatId: value })}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select panchayat" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {panchayats.map(p => (
-                                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            )}
+
                           </div>
                         )}
                         <DialogFooter>

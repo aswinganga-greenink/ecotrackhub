@@ -63,6 +63,10 @@ class MonthlyData(Base):
     user = relationship("User", back_populates="monthly_data")
     panchayat = relationship("Panchayat", back_populates="monthly_data")
 
+    @property
+    def username(self):
+        return self.user.username if self.user else "Unknown User"
+
 class EmissionFactors(Base):
     __tablename__ = "emission_factors"
     
@@ -91,3 +95,12 @@ class CarbonMetrics(Base):
     is_neutral = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class OTPVerification(Base):
+    __tablename__ = "otp_verifications"
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
+    email = Column(String, nullable=False, index=True)
+    otp = Column(String, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

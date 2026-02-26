@@ -10,6 +10,7 @@ export interface User {
 export interface MonthlyData {
   id: string;
   userId: string;
+  username?: string;
   panchayatId?: string;
   month: string;
   year: number;

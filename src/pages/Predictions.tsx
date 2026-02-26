@@ -12,7 +12,7 @@ import {
 } from 'recharts';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { api, ForecastItem } from '@/lib/api';
-import { TrendingUp, Target, AlertCircle, CheckCircle2, CloudLightning } from 'lucide-react';
+import { TrendingUp, Target, AlertCircle, CheckCircle2, CloudLightning, BrainCircuit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Predictions() {
@@ -93,8 +93,8 @@ export default function Predictions() {
           <h1 className="font-display text-3xl font-bold text-foreground">
             AI Predictions
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Gemini AI powered forecasts for your carbon emissions
+          <p className="text-muted-foreground mt-1 text-base max-w-2xl px-1">
+            Analyze historical data to forecast future carbon footprints and discover actionable optimization strategies.
           </p>
         </div>
 
@@ -129,12 +129,12 @@ export default function Predictions() {
           <div className="card-elevated p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <CloudLightning className="w-5 h-5 text-primary" />
+                <BrainCircuit className="w-5 h-5 text-primary" />
               </div>
             </div>
             <p className="text-sm text-muted-foreground mb-1">Model</p>
-            <p className="font-display text-2xl font-bold text-foreground">Gemini Pro</p>
-            <p className="text-xs text-muted-foreground">Google AI</p>
+            <p className="font-display text-2xl font-bold text-foreground">AI Powered</p>
+            <p className="text-xs text-muted-foreground">Intelligent Forecasting</p>
           </div>
         </div>
 
