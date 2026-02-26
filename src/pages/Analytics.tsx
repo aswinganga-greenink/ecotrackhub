@@ -255,7 +255,7 @@ export default function Analytics() {
                     paddingAngle={3}
                     dataKey="emission"
                     nameKey="sector"
-                    label={({ sector, percentage }) => `${sector}: ${percentage.toFixed(1)}%`}
+                    label={({ sector, percentage }) => `${sector}: ${percentage > 0 && percentage < 0.1 ? '<0.1' : percentage.toFixed(1)}%`}
                     labelLine={false}
                   >
                     {sectorData.map((_, index) => (

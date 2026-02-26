@@ -1,10 +1,10 @@
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Tooltip, 
-  Legend 
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend
 } from 'recharts';
 import { SectorEmission } from '@/lib/api';
 
@@ -44,26 +44,26 @@ export function SectorPieChart({ data }: SectorPieChartProps) {
                 paddingAngle={3}
                 dataKey="emission"
                 nameKey="sector"
-                label={({ sector, percentage }) => `${sector}: ${percentage.toFixed(1)}%`}
+                label={({ sector, percentage }) => `${sector}: ${percentage > 0 && percentage < 0.1 ? '<0.1' : percentage.toFixed(1)}%`}
               >
                 {data.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.color || defaultColors[index % defaultColors.length]} 
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.color || defaultColors[index % defaultColors.length]}
                   />
                 ))}
               </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(0, 0%, 100%)', 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(0, 0%, 100%)',
                   border: '1px solid hsl(150, 15%, 85%)',
                   borderRadius: '8px',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                 }}
                 formatter={(value: number) => [`${value.toFixed(2)} kg CO₂`, '']}
               />
-              <Legend 
-                verticalAlign="bottom" 
+              <Legend
+                verticalAlign="bottom"
                 height={36}
                 formatter={(value) => <span className="text-sm text-foreground">{value}</span>}
               />
