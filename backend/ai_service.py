@@ -3,6 +3,7 @@ import google.generativeai as genai
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 import json
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -31,6 +32,10 @@ async def get_ai_prediction(historical_data: List[Dict[str, Any]]) -> Dict[str, 
     # Prepare data for prompt
     data_summary = json.dumps(historical_data, default=str)
     
+    today = datetime.now()
+    current_month = today.strftime("%B")   # e.g. "March"
+    current_year = today.year              # e.g. 2026
+
     prompt = f"""
     You are an environmental data analyst. Analyze the following carbon emission data for a Gram Panchayat (local government unit).
     The data includes monthly resource usage (electricity, fuel, etc.) and the CALCULATED TOTAL EMISSION (in kg CO2e) based on standard factors.
@@ -40,15 +45,15 @@ async def get_ai_prediction(historical_data: List[Dict[str, Any]]) -> Dict[str, 
 
     Task:
     1. Analyze the trend of 'calculated_total_emission_kg' over time, handling any gaps in dates intelligently.
-    2. Provide a 6-month forecast of 'calculated_net_footprint_kg'.
+    2. Provide a 6-month forecast STARTING from {current_month} {current_year} (the current date).
     3. IMPORTANT: The forecast MUST NOT be a flat line. If historical data is sparse or flat, simulate realistic seasonal variations (e.g. higher in summer/winter) or growth trends based on the data context.
     4. Provide 3 specific, actionable recommendations.
 
     Return the response in the following STRICT JSON format (do not include markdown formatting or explanations outside the JSON):
     {{
       "forecast": [
-        {{ "month": "MonthName", "year": 2024, "predicted_emission": 123.45 }},
-        ... (6 months)
+        {{ "month": "MonthName", "year": {current_year}, "predicted_emission": 123.45 }},
+        ... (6 months starting from {current_month} {current_year})
       ],
       "recommendations": [
         "Recommendation 1...",

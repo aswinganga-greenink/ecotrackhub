@@ -72,18 +72,65 @@ export default function Analytics() {
   }, [toast]);
 
   const handleExport = (format: 'csv' | 'pdf') => {
-    toast({
-      title: `Exporting ${format.toUpperCase()}`,
-      description: "Your report is being generated...",
-    });
+    if (format === 'csv') {
+      if (trendData.length === 0) {
+        toast({ title: 'No Data', description: 'No trend data available to export.', variant: 'destructive' });
+        return;
+      }
+      const headers = ['Month', 'Emissions (kg CO₂)', 'Offsets (kg CO₂)', 'Net (kg CO₂)'];
+      const rows = trendData.map(t => `${t.month},${t.emissions.toFixed(2)},${t.offsets.toFixed(2)},${t.net.toFixed(2)}`);
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `analytics_export_${new Date().getFullYear()}.csv`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({ title: 'CSV Downloaded', description: 'Analytics data exported successfully.' });
+      return;
+    }
 
-    // Simulate export
-    setTimeout(() => {
-      toast({
-        title: "Export Complete",
-        description: `Your ${format.toUpperCase()} report has been downloaded.`,
-      });
-    }, 1500);
+    // PDF — open styled print window
+    if (!metrics) return;
+    const sectorRows = sectorData.map(s =>
+      `<tr><td>${s.sector}</td><td>${s.emission.toFixed(2)}</td><td>${s.percentage.toFixed(1)}%</td></tr>`
+    ).join('');
+    const trendRows = trendData.map(t =>
+      `<tr><td>${t.month}</td><td>${t.emissions.toFixed(2)}</td><td>${t.offsets.toFixed(2)}</td><td style="color:${t.net <= 0 ? '#166534' : '#dc2626'}">${t.net.toFixed(2)}</td></tr>`
+    ).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<title>Analytics Report</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;color:#1a1a1a;padding:24px;font-size:11px}
+h1{font-size:22px;color:#166534;margin-bottom:4px}.sub{color:#555;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.card{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px}
+.card h3{font-size:10px;text-transform:uppercase;color:#555;margin-bottom:4px}
+.card p{font-size:18px;font-weight:700;color:#166534}
+h2{font-size:14px;color:#166534;border-bottom:2px solid #bbf7d0;padding-bottom:4px;margin:20px 0 10px}
+table{width:100%;border-collapse:collapse;margin-bottom:16px}
+th{background:#166534;color:white;padding:6px 8px;text-align:left;font-size:10px}
+td{padding:5px 8px;border-bottom:1px solid #e5e7eb}
+tr:nth-child(even) td{background:#f9fafb}
+.footer{margin-top:32px;text-align:center;color:#aaa;font-size:10px;border-top:1px solid #e5e7eb;padding-top:12px}
+@media print{@page{margin:10mm}}
+</style></head><body>
+<h1>🌿 Analytics Report</h1>
+<p class="sub">Gram Panchayat Anjarakandi &nbsp;|&nbsp; Generated: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+<div class="grid">
+<div class="card"><h3>Total Emissions</h3><p>${metrics.total_emissions?.toFixed(0) ?? '–'}</p><small>kg CO₂e</small></div>
+<div class="card"><h3>Total Offsets</h3><p>${metrics.total_offsets?.toFixed(0) ?? '–'}</p><small>kg CO₂e</small></div>
+<div class="card"><h3>Net Footprint</h3><p>${metrics.net_footprint?.toFixed(0) ?? '–'}</p><small>${metrics.is_neutral ? '✓ Neutral' : 'Emitting'}</small></div>
+</div>
+<h2>Sector-wise Emissions</h2>
+<table><thead><tr><th>Sector</th><th>Emissions (kg CO₂)</th><th>Share</th></tr></thead><tbody>${sectorRows}</tbody></table>
+<h2>Monthly Trends</h2>
+<table><thead><tr><th>Month</th><th>Emissions (kg)</th><th>Offsets (kg)</th><th>Net (kg)</th></tr></thead><tbody>${trendRows}</tbody></table>
+<div class="footer">CarbonTrackHub &nbsp;|&nbsp; GHG Protocol Standards</div>
+</body></html>`;
+    const win = window.open('', '_blank');
+    if (win) { win.document.write(html); win.document.close(); win.focus(); setTimeout(() => win.print(), 400); }
+    toast({ title: 'PDF Ready', description: 'Use "Save as PDF" in the print dialog.' });
   };
 
   // Show loading state

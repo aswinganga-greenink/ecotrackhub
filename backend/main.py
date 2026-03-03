@@ -145,7 +145,8 @@ async def register(user_data: OTPVerify, db: Session = Depends(get_db)):
         hashed_password=hashed_password,
         role="user",
         panchayat_id="anjarakandi-id",
-        firm_type=user_data.firm_type
+        firm_type=user_data.firm_type,
+        firm_name=user_data.firm_name
     )
     
     db.add(db_user)
@@ -513,6 +514,13 @@ async def get_predictions(
         historical_data.append(data_dict)
     
     from ai_service import get_ai_prediction
+    
+    if not historical_data:
+        raise HTTPException(
+            status_code=400,
+            detail="No data available to generate predictions. Please submit at least one month of data first."
+        )
+    
     prediction = await get_ai_prediction(historical_data)
     
     if "error" in prediction:

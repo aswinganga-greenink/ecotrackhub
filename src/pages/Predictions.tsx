@@ -21,6 +21,7 @@ export default function Predictions() {
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [noData, setNoData] = useState(false);
 
   useEffect(() => {
     const fetchPredictions = async () => {
@@ -29,14 +30,20 @@ export default function Predictions() {
         const data = await api.getPredictions();
         setForecast(data.forecast);
         setRecommendations(data.recommendations);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to fetch predictions:", err);
-        setError("Could not generate predictions. Ensure API key is configured.");
-        toast({
-          title: "Prediction Error",
-          description: "Failed to load AI predictions. Please try again later.",
-          variant: "destructive"
-        });
+        // Check if this is a "no data" 400 error from backend
+        const detail = err?.detail || err?.message || '';
+        if (err?.status === 400 || detail.toLowerCase().includes('no data') || detail.toLowerCase().includes('please submit')) {
+          setNoData(true);
+        } else {
+          setError("Could not generate predictions. Ensure API key is configured.");
+          toast({
+            title: "Prediction Error",
+            description: "Failed to load AI predictions. Please try again later.",
+            variant: "destructive"
+          });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -52,6 +59,30 @@ export default function Predictions() {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Generating AI predictions...</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (noData) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-[80vh]">
+          <div className="text-center max-w-md space-y-4">
+            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <BrainCircuit className="h-10 w-10 text-primary" />
+            </div>
+            <h2 className="font-display text-2xl font-bold text-foreground">No Data Yet</h2>
+            <p className="text-muted-foreground">
+              There's no emission data to generate predictions from. Submit at least one month of data first, and the AI will forecast your future carbon footprint.
+            </p>
+            <a
+              href="/data-entry"
+              className="inline-block px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              Go to Data Entry →
+            </a>
           </div>
         </div>
       </MainLayout>

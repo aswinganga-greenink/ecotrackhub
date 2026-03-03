@@ -13,6 +13,8 @@ export interface MonthlyData {
   username?: string;
   firmType?: string;
   firm_type?: string;
+  firmName?: string;
+  firm_name?: string;
   panchayatId?: string;
   month: string;
   year: number;

@@ -19,6 +19,7 @@ class User(Base):
     role = Column(String, default="user")  # admin, user
     panchayat_id = Column(String, ForeignKey("panchayats.id"), nullable=True)
     firm_type = Column(String, nullable=True)  # school, industry, shop, household, other
+    firm_name = Column(String, nullable=True)  # e.g. "St. Mary's School"
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -71,6 +72,10 @@ class MonthlyData(Base):
     @property
     def firm_type(self):
         return self.user.firm_type if self.user else None
+
+    @property
+    def firm_name(self):
+        return self.user.firm_name if self.user else None
 
 class EmissionFactors(Base):
     __tablename__ = "emission_factors"

@@ -232,9 +232,16 @@ export function PanchayatData() {
                     <TableCell className="text-muted-foreground">{entry.username || 'Unknown'}</TableCell>
                     <TableCell>
                       {entry.firmType ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary capitalize">
-                          {entry.firmType}
-                        </span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary capitalize">
+                            {entry.firmType}
+                          </span>
+                          {entry.firmName && (
+                            <span className="text-xs text-muted-foreground truncate max-w-[120px]" title={entry.firmName}>
+                              {entry.firmName}
+                            </span>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
                       )}

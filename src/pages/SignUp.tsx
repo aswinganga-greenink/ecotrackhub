@@ -15,6 +15,7 @@ export default function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [firmType, setFirmType] = useState('');
+  const [firmName, setFirmName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const { requestOtp, signUp } = useAuth();
@@ -66,7 +67,7 @@ export default function SignUp() {
     }
 
     try {
-      const success = await signUp(username, email, password, otp, firmType);
+      const success = await signUp(username, email, password, otp, firmType, firmName);
 
       if (success) {
         setTimeout(() => {
@@ -211,6 +212,23 @@ export default function SignUp() {
                     <option value="ngo">🌿 NGO / Non-profit</option>
                     <option value="other">🔹 Other</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Firm Name */}
+              <div className="space-y-2">
+                <Label htmlFor="firmName">Organization Name *</Label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input
+                    id="firmName"
+                    type="text"
+                    placeholder="e.g. St. Mary's School, Anjarakandi"
+                    value={firmName}
+                    onChange={(e) => setFirmName(e.target.value)}
+                    className="pl-10 h-12"
+                    required
+                  />
                 </div>
               </div>
 
