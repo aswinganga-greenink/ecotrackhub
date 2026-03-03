@@ -18,6 +18,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     role = Column(String, default="user")  # admin, user
     panchayat_id = Column(String, ForeignKey("panchayats.id"), nullable=True)
+    firm_type = Column(String, nullable=True)  # school, industry, shop, household, other
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -66,6 +67,10 @@ class MonthlyData(Base):
     @property
     def username(self):
         return self.user.username if self.user else "Unknown User"
+
+    @property
+    def firm_type(self):
+        return self.user.firm_type if self.user else None
 
 class EmissionFactors(Base):
     __tablename__ = "emission_factors"

@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   login: (username: string, password: string, role?: UserRole) => Promise<boolean>;
   requestOtp: (email: string) => Promise<boolean>;
-  signUp: (username: string, email: string, password: string, otp: string) => Promise<boolean>;
+  signUp: (username: string, email: string, password: string, otp: string, firmType?: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (username: string, email: string, password: string, otp: string): Promise<boolean> => {
+  const signUp = async (username: string, email: string, password: string, otp: string, firmType?: string): Promise<boolean> => {
     try {
       setIsLoading(true);
 
@@ -109,7 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         username,
         email,
         password,
-        otp
+        otp,
+        firm_type: firmType
       });
 
       toast({

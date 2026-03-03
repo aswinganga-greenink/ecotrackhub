@@ -231,9 +231,21 @@ def get_monthly_trends(
             month_data[key] = []
         month_data[key].append(data)
     
+    MONTH_ORDER = {
+        'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4,
+        'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8,
+        'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+    }
+
+    def sort_key(k):
+        parts = k.split('-')
+        y = int(parts[0])
+        m = MONTH_ORDER.get(parts[1], 0)
+        return (y, m)
+
     trends = []
     
-    for key in sorted(month_data.keys()):
+    for key in sorted(month_data.keys(), key=sort_key):
         year_month = key.split('-')
         year_val = int(year_month[0])
         month_val = year_month[1]

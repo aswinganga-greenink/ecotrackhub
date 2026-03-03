@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Leaf, User, Lock, Mail, KeyRound, MoveRight, Loader2 } from 'lucide-react';
+import { Leaf, User, Lock, Mail, KeyRound, MoveRight, Loader2, Building2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ export default function SignUp() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [otp, setOtp] = useState('');
+  const [firmType, setFirmType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const { requestOtp, signUp } = useAuth();
@@ -65,7 +66,7 @@ export default function SignUp() {
     }
 
     try {
-      const success = await signUp(username, email, password, otp);
+      const success = await signUp(username, email, password, otp, firmType);
 
       if (success) {
         setTimeout(() => {
@@ -186,6 +187,30 @@ export default function SignUp() {
                     className="pl-10 h-12"
                     required
                   />
+                </div>
+              </div>
+
+              {/* Firm Type */}
+              <div className="space-y-2">
+                <Label htmlFor="firmType">Organization Type *</Label>
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+                  <select
+                    id="firmType"
+                    value={firmType}
+                    onChange={(e) => setFirmType(e.target.value)}
+                    required
+                    className="w-full h-12 pl-10 pr-4 bg-background border border-input rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring appearance-none"
+                  >
+                    <option value="">Select your organization type</option>
+                    <option value="household">🏠 Household</option>
+                    <option value="school">🏫 School / College</option>
+                    <option value="industry">🏭 Industry / Factory</option>
+                    <option value="shop">🏪 Shop / Retail</option>
+                    <option value="office">🏢 Office / Corporate</option>
+                    <option value="ngo">🌿 NGO / Non-profit</option>
+                    <option value="other">🔹 Other</option>
+                  </select>
                 </div>
               </div>
 

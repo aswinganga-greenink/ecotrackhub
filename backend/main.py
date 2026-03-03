@@ -144,7 +144,8 @@ async def register(user_data: OTPVerify, db: Session = Depends(get_db)):
         email=user_data.email,
         hashed_password=hashed_password,
         role="user",
-        panchayat_id="anjarakandi-id"
+        panchayat_id="anjarakandi-id",
+        firm_type=user_data.firm_type
     )
     
     db.add(db_user)

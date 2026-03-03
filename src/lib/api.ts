@@ -29,6 +29,7 @@ export interface SignUpRequest {
   otp: string;
   role?: string;
   panchayat_id?: string;
+  firm_type?: string;
 }
 
 export interface CarbonMetricsResponse {
@@ -181,6 +182,7 @@ class ApiClient {
         ...item,
         userId: item.user_id,
         username: item.username,
+        firmType: item.firm_type,
         panchayatId: item.panchayat_id,
         electricityKwh: item.electricity_kwh,
         dieselLiters: item.diesel_liters,

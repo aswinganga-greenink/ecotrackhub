@@ -210,6 +210,7 @@ export function PanchayatData() {
               <TableRow>
                 <TableHead>Month</TableHead>
                 <TableHead>User</TableHead>
+                <TableHead>Firm Type</TableHead>
                 <TableHead className="text-right">Electricity (kWh)</TableHead>
                 <TableHead className="text-right">Diesel (L)</TableHead>
                 <TableHead className="text-right">Petrol (L)</TableHead>
@@ -229,6 +230,15 @@ export function PanchayatData() {
                   <TableRow key={entry.id}>
                     <TableCell className="font-medium">{entry.month} {entry.year}</TableCell>
                     <TableCell className="text-muted-foreground">{entry.username || 'Unknown'}</TableCell>
+                    <TableCell>
+                      {entry.firmType ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary capitalize">
+                          {entry.firmType}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">{entry.electricityKwh}</TableCell>
                     <TableCell className="text-right">{entry.dieselLiters}</TableCell>
                     <TableCell className="text-right">{entry.petrolLiters}</TableCell>

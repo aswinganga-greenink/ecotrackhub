@@ -13,6 +13,7 @@ class UserBase(BaseSchema):
     email: Optional[EmailStr] = None
     role: str = "user"
     panchayat_id: Optional[str] = None
+    firm_type: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
@@ -22,6 +23,7 @@ class UserUpdate(BaseSchema):
     email: Optional[EmailStr] = None
     role: Optional[str] = None
     panchayat_id: Optional[str] = None
+    firm_type: Optional[str] = None
     is_active: Optional[bool] = None
 
 class User(UserBase):
@@ -41,6 +43,7 @@ class OTPVerify(BaseModel):
     otp: str
     username: str
     password: str
+    firm_type: Optional[str] = None
 
 # Panchayat schemas
 class PanchayatBase(BaseSchema):
@@ -94,6 +97,7 @@ class MonthlyDataUpdate(BaseSchema):
 class MonthlyData(MonthlyDataBase):
     id: str
     username: Optional[str] = None
+    firm_type: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

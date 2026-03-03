@@ -11,6 +11,8 @@ export interface MonthlyData {
   id: string;
   userId: string;
   username?: string;
+  firmType?: string;
+  firm_type?: string;
   panchayatId?: string;
   month: string;
   year: number;

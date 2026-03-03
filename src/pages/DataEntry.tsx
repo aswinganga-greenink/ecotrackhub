@@ -32,7 +32,7 @@ interface FormData {
 
 const initialFormData: FormData = {
   month: 'Jan',
-  year: 2024,
+  year: 2025,
   electricityKwh: '',
   dieselLiters: '',
   petrolLiters: '',
@@ -182,7 +182,7 @@ export default function DataEntry() {
                   onChange={(e) => handleInputChange('year', e.target.value)}
                   className="w-full h-12 px-4 bg-background border border-input rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
-                  {[2023, 2024, 2025].map((year) => (
+                  {[2025, 2026].map((year) => (
                     <option key={year} value={year}>{year}</option>
                   ))}
                 </select>
