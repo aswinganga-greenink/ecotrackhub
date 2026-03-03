@@ -14,7 +14,7 @@ colorama==0.4.6
 configobj==5.0.8
 cryptography==41.0.7
 cssselect==1.2.0
-defer==1.0.6
+defer==1.0.4
 distlib==0.3.8
 distro==1.9.0
 docker==5.0.3
