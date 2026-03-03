@@ -118,9 +118,9 @@ tr:nth-child(even) td{background:#f9fafb}
 <h1>🌿 Analytics Report</h1>
 <p class="sub">Gram Panchayat Anjarakandi &nbsp;|&nbsp; Generated: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
 <div class="grid">
-<div class="card"><h3>Total Emissions</h3><p>${metrics.total_emissions?.toFixed(0) ?? '–'}</p><small>kg CO₂e</small></div>
-<div class="card"><h3>Total Offsets</h3><p>${metrics.total_offsets?.toFixed(0) ?? '–'}</p><small>kg CO₂e</small></div>
-<div class="card"><h3>Net Footprint</h3><p>${metrics.net_footprint?.toFixed(0) ?? '–'}</p><small>${metrics.is_neutral ? '✓ Neutral' : 'Emitting'}</small></div>
+<div class="card"><h3>Total Emissions</h3><p>${metrics.totalEmissions?.toFixed(0) ?? '0'}</p><small>kg CO₂e</small></div>
+<div class="card"><h3>Total Offsets</h3><p>${metrics.totalOffsets?.toFixed(0) ?? '0'}</p><small>kg CO₂e</small></div>
+<div class="card"><h3>Net Footprint</h3><p>${metrics.netFootprint?.toFixed(0) ?? '0'}</p><small>${metrics.isNeutral ? '✓ Neutral' : 'Emitting'}</small></div>
 </div>
 <h2>Sector-wise Emissions</h2>
 <table><thead><tr><th>Sector</th><th>Emissions (kg CO₂)</th><th>Share</th></tr></thead><tbody>${sectorRows}</tbody></table>
