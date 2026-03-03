@@ -295,14 +295,20 @@ def seed_initial_data(db: Session):
         db.commit()
         print("Anjarakandi seeded successfully.")
     
-    # Check if sample users exist
-    existing_users = db.query(User).count()
-    if existing_users == 0:
-        from auth import get_password_hash
-        
-        admin_username = os.getenv("ADMIN_USERNAME", "admin")
-        admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
-        
+    # Always sync admin credentials from .env (create or update)
+    from auth import get_password_hash
+
+    admin_username = os.getenv("ADMIN_USERNAME", "admin")
+    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+
+    existing_admin = db.query(User).filter(User.role == "admin").first()
+    if existing_admin:
+        # Update credentials to always match .env
+        existing_admin.username       = admin_username
+        existing_admin.hashed_password = get_password_hash(admin_password)
+        db.commit()
+        print(f"✅ Admin credentials synced from .env (username: {admin_username})")
+    else:
         admin_user = User(
             username=admin_username,
             email="admin@carbontrackhub.com",
@@ -310,11 +316,14 @@ def seed_initial_data(db: Session):
             role="admin",
             is_active=True
         )
-        
-        # Get the first available panchayat to assign to the demo user (which will be Anjarakandi)
-        first_panchayat = db.query(Panchayat).first()
-        panchayat_id = first_panchayat.id if first_panchayat else None
-        
+        db.add(admin_user)
+        db.commit()
+        print(f"✅ Admin user created from .env (username: {admin_username})")
+
+    # Seed demo_user only on first run (no regular users yet)
+    first_panchayat = db.query(Panchayat).first()
+    panchayat_id = first_panchayat.id if first_panchayat else None
+    if db.query(User).filter(User.role == "user").count() == 0:
         user1 = User(
             username="demo_user",
             email="demo@example.com",
@@ -323,7 +332,6 @@ def seed_initial_data(db: Session):
             is_active=True,
             panchayat_id=panchayat_id
         )
-        
-        db.add_all([admin_user, user1])
+        db.add(user1)
         db.commit()
 
