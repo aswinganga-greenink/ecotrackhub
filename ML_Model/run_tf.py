@@ -18,15 +18,15 @@ model = tf.keras.Sequential([
 model.compile(optimizer='adam', loss='mse')
 
 
-model.save('/home/aswin-ganga/ecotrackhub/ML_Model/weights/carbon_lstm_v2_final.keras')
+model.save('/home/anaghadas/ecotrackhub/ML_Model/weights/carbon_lstm_v2_final.keras')
 
 # Generate fake Joblib binary scalers
 scaler_feat = MinMaxScaler()
 scaler_feat.fit(np.random.rand(1000, 21)) # Fake fit to initialize it
-joblib.dump(scaler_feat, '/home/aswin-ganga/ecotrackhub/ML_Model/weights/feature_scaler.joblib')
+joblib.dump(scaler_feat, '/home/anaghadas/ecotrackhub/ML_Model/weights/feature_scaler.joblib')
 
 scaler_targ = MinMaxScaler()
 scaler_targ.fit(np.random.rand(1000, 1)) 
-joblib.dump(scaler_targ, '/home/aswin-ganga/ecotrackhub/ML_Model/weights/target_scaler.joblib')
+joblib.dump(scaler_targ, '/home/anaghadas/ecotrackhub/ML_Model/weights/target_scaler.joblib')
 
 print("Binary ML details populated inside weight dir.")
