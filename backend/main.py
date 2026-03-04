@@ -287,7 +287,7 @@ async def get_monthly_data(
     month: Optional[str] = None,
     year: Optional[int] = None,
     page: int = Query(1, ge=1),
-    size: int = Query(50, ge=1, le=100)
+    size: int = Query(50, ge=1, le=10000)
 ):
     """Get monthly carbon data."""
     query = db.query(MonthlyData)

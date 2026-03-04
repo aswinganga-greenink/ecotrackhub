@@ -38,8 +38,19 @@ async def get_ai_prediction(historical_data: List[Dict[str, Any]]) -> Dict[str, 
     MONTH_ABBR  = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+    # Sort chronologically so the last element is always the most recent month
+    def _sort_key(entry):
+        try:
+            y = int(entry.get('year', 0))
+            m = MONTH_ABBR.index(entry.get('month', 'Jan'))
+        except (ValueError, IndexError):
+            y, m = 0, 0
+        return (y, m)
+
+    sorted_data = sorted(historical_data, key=_sort_key)
+
     try:
-        last_entry = historical_data[-1]
+        last_entry    = sorted_data[-1]
         last_month_str = last_entry.get('month', '')          # e.g. "Mar"
         last_year      = int(last_entry.get('year', datetime.now().year))
         last_month_idx = MONTH_ABBR.index(last_month_str)     # 0-based index

@@ -12,8 +12,11 @@ import {
 } from 'recharts';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { api, ForecastItem } from '@/lib/api';
-import { TrendingUp, Target, AlertCircle, CheckCircle2, CloudLightning, BrainCircuit } from 'lucide-react';
+import { TrendingUp, Target, AlertCircle, CheckCircle2, CloudLightning, BrainCircuit, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+const CACHE_KEY = 'prediction_cache';
+const FINGERPRINT_KEY = 'prediction_fingerprint';
 
 export default function Predictions() {
   const { toast } = useToast();
@@ -22,35 +25,69 @@ export default function Predictions() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [noData, setNoData] = useState(false);
+  const [fromCache, setFromCache] = useState(false);
 
-  useEffect(() => {
-    const fetchPredictions = async () => {
-      try {
-        setIsLoading(true);
-        const data = await api.getPredictions();
-        setForecast(data.forecast);
-        setRecommendations(data.recommendations);
-      } catch (err: any) {
-        console.error("Failed to fetch predictions:", err);
-        // Check if this is a "no data" 400 error from backend
-        const detail = err?.detail || err?.message || '';
-        if (err?.status === 400 || detail.toLowerCase().includes('no data') || detail.toLowerCase().includes('please submit')) {
-          setNoData(true);
-        } else {
-          setError("Could not generate predictions. Ensure API key is configured.");
-          toast({
-            title: "Prediction Error",
-            description: "Failed to load AI predictions. Please try again later.",
-            variant: "destructive"
-          });
-        }
-      } finally {
-        setIsLoading(false);
+  const loadPredictions = async (forceRefresh = false) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setNoData(false);
+
+      // Step 1: Build a lightweight fingerprint from monthly data metadata
+      const dataResponse = await api.getMonthlyData({ size: 1000 });
+      const items = dataResponse.items ?? [];
+
+      if (items.length === 0) {
+        setNoData(true);
+        return;
       }
-    };
 
-    fetchPredictions();
-  }, [toast]);
+      // Fingerprint = record count + id of last entry (sorted chronologically)
+      const sortedIds = [...items].map(i => i.id).sort();
+      const fingerprint = `${items.length}:${sortedIds[sortedIds.length - 1]}`;
+
+      const cachedFingerprint = localStorage.getItem(FINGERPRINT_KEY);
+      const cachedResult = localStorage.getItem(CACHE_KEY);
+
+      if (!forceRefresh && cachedFingerprint === fingerprint && cachedResult) {
+        // Data hasn't changed — use cache
+        const parsed = JSON.parse(cachedResult);
+        setForecast(parsed.forecast);
+        setRecommendations(parsed.recommendations);
+        setFromCache(true);
+        return;
+      }
+
+      // Step 2: Data changed (or forced) — call AI
+      setFromCache(false);
+      const data = await api.getPredictions();
+      setForecast(data.forecast);
+      setRecommendations(data.recommendations);
+
+      // Persist to cache
+      localStorage.setItem(FINGERPRINT_KEY, fingerprint);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+
+    } catch (err: any) {
+      console.error("Failed to fetch predictions:", err);
+      const detail = err?.detail || err?.message || '';
+      if (err?.status === 400 || detail.toLowerCase().includes('no data') || detail.toLowerCase().includes('please submit')) {
+        setNoData(true);
+      } else {
+        setError("Could not generate predictions. Ensure API key is configured.");
+        toast({
+          title: "Prediction Error",
+          description: "Failed to load AI predictions. Please try again later.",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { loadPredictions(); }, []);
+
 
   if (isLoading) {
     return (
@@ -98,7 +135,7 @@ export default function Predictions() {
             <h2 className="text-xl font-bold mb-2">Prediction Unavailable</h2>
             <p className="text-muted-foreground mb-4">{error || "No sufficient data to generate predictions."}</p>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => loadPredictions(true)}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-lg"
             >
               Retry
@@ -120,13 +157,30 @@ export default function Predictions() {
     <MainLayout>
       <div className="space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="font-display text-3xl font-bold text-foreground">
-            AI Predictions
-          </h1>
-          <p className="text-muted-foreground mt-1 text-base max-w-2xl px-1">
-            Analyze historical data to forecast future carbon footprints and discover actionable optimization strategies.
-          </p>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="font-display text-3xl font-bold text-foreground">
+              AI Predictions
+            </h1>
+            <p className="text-muted-foreground mt-1 text-base max-w-2xl px-1">
+              Analyze historical data to forecast future carbon footprints and discover actionable optimization strategies.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 pt-1">
+            {fromCache && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                <CheckCircle2 className="w-3 h-3" />
+                Cached result
+              </span>
+            )}
+            <button
+              onClick={() => loadPredictions(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input bg-background text-sm font-medium hover:bg-muted transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh Predictions
+            </button>
+          </div>
         </div>
 
         {/* Prediction Summary */}
