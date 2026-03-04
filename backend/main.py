@@ -290,26 +290,30 @@ async def get_monthly_data(
     size: int = Query(50, ge=1, le=10000)
 ):
     """Get monthly carbon data."""
-    query = db.query(MonthlyData)
-    
+    query = db.query(MonthlyData).join(User, MonthlyData.user_id == User.id)
+
     # Apply filters
     if current_user.role == "user":
+        # Regular users only see their own data
         query = query.filter(MonthlyData.user_id == current_user.id)
-    elif user_id:
-        query = query.filter(MonthlyData.user_id == user_id)
-    
+    else:
+        # Admins see only regular-user entries (never admin-submitted entries)
+        query = query.filter(User.role == "user")
+        if user_id:
+            query = query.filter(MonthlyData.user_id == user_id)
+
     if panchayat_id:
         query = query.filter(MonthlyData.panchayat_id == panchayat_id)
     if month:
         query = query.filter(MonthlyData.month == month)
     if year:
         query = query.filter(MonthlyData.year == year)
-    
+
     # Pagination
     total = query.count()
     offset = (page - 1) * size
     data = query.offset(offset).limit(size).all()
-    
+
     return {
         "items": [MonthlyDataSchema.from_orm(item) for item in data],
         "total": total,
@@ -325,17 +329,16 @@ async def create_monthly_data(
     current_user: UserSchema = Depends(get_current_active_user)
 ):
     """Create new monthly data entry."""
-    if current_user.role == "user" and data.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Can only create data for yourself")
-    
-    if not data.panchayat_id:
-        data.panchayat_id = current_user.panchayat_id or "anjarakandi-id"
-    
-    db_data = MonthlyData(**data.dict())
+    # Always force user_id from the authenticated token — never trust client input
+    data_dict = data.dict()
+    data_dict["user_id"] = current_user.id
+    data_dict["panchayat_id"] = current_user.panchayat_id or "anjarakandi-id"
+
+    db_data = MonthlyData(**data_dict)
     db.add(db_data)
     db.commit()
     db.refresh(db_data)
-    
+
     return MonthlyDataSchema.from_orm(db_data)
 
 @app.put("/data/{data_id}", response_model=MonthlyDataSchema)
