@@ -1,7 +1,8 @@
 import sqlite3
 import os
 
-db_path = "/home/aswin-ganga/ecotrackhub/backend/carbontrackhub.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "carbontrackhub.db")
 
 def migrate():
     print(f"Connecting to {db_path}...")
