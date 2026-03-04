@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CarbonTrackHub – Emission Calculation Reference</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #1a1a1a;
+            padding: 40px 56px;
+            font-size: 12px;
+            line-height: 1.7;
+            background: white;
+        }
+
+        /* ── Header ── */
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid #166534;
+            padding-bottom: 16px;
+            margin-bottom: 28px;
+        }
+
+        .logo {
+            font-size: 28px;
+            margin-right: 12px;
+        }
+
+        .title h1 {
+            font-size: 22px;
+            color: #166534;
+            font-weight: 700;
+        }
+
+        .title p {
+            font-size: 11px;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        /* ── Sections ── */
+        h2 {
+            font-size: 15px;
+            color: #166534;
+            border-bottom: 2px solid #bbf7d0;
+            padding-bottom: 5px;
+            margin: 28px 0 14px;
+        }
+
+        h3 {
+            font-size: 12.5px;
+            color: #1a1a1a;
+            margin: 16px 0 6px;
+            font-weight: 600;
+        }
+
+        /* ── Equation box ── */
+        .eq-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-left: 4px solid #16a34a;
+            border-radius: 6px;
+            padding: 14px 18px;
+            margin: 10px 0 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 12.5px;
+            line-height: 1.9;
+        }
+
+        .eq-box .label {
+            font-size: 10px;
+            font-family: sans-serif;
+            color: #555;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* ── Factor table ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0 18px;
+        }
+
+        th {
+            background: #166534;
+            color: white;
+            padding: 7px 10px;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 11.5px;
+        }
+
+        tr:nth-child(even) td {
+            background: #f9fafb;
+        }
+
+        .source {
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        /* ── Info boxes ── */
+        .info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #1e40af;
+        }
+
+        .warn {
+            background: #fef9c3;
+            border: 1px solid #fde047;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #713f12;
+        }
+
+        /* ── DB commands ── */
+        .cmd-box {
+            background: #1e1e2e;
+            color: #a6e3a1;
+            border-radius: 6px;
+            padding: 14px 18px;
+            margin: 10px 0 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 11.5px;
+            line-height: 1.9;
+        }
+
+        .cmd-box .comment {
+            color: #6c7086;
+        }
+
+        .cmd-box .danger {
+            color: #f38ba8;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            margin-top: 40px;
+            padding-top: 14px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        @media print {
+            @page {
+                margin: 12mm 14mm;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Print button (hidden when printing) -->
+    <div class="no-print" style="text-align:right;margin-bottom:20px">
+        <button onclick="window.print()"
+            style="background:#166534;color:white;border:none;padding:10px 22px;border-radius:6px;cursor:pointer;font-size:13px">
+            🖨️ Save as PDF (Ctrl+P)
+        </button>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">🌿</div>
+        <div class="title">
+            <h1>CarbonTrackHub – Emission Calculation Reference</h1>
+            <p>Gram Panchayat Anjarakandi &nbsp;|&nbsp; GHG Protocol &amp; IPCC Guidelines &nbsp;|&nbsp; Generated:
+                March 2026</p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>1. Emission Factors</h2>
+    <p>All factors follow the <strong>GHG Protocol Corporate Standard</strong>, IPCC AR5 values, and India-specific CEA
+        data.</p>
+
+    <h3>1.1 Activity Emission Factors</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Factor</th>
+                <th>Unit</th>
+                <th>Reference</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>🔌 Electricity (Grid)</td>
+                <td>0.716</td>
+                <td>kg CO₂e per kWh</td>
+                <td>CEA India Grid Emission Factor 2023</td>
+            </tr>
+            <tr>
+                <td>⛽ Diesel</td>
+                <td>2.68</td>
+                <td>kg CO₂e per litre</td>
+                <td>US EPA AP-42 / DEFRA 2023</td>
+            </tr>
+            <tr>
+                <td>🚗 Petrol</td>
+                <td>2.32</td>
+                <td>kg CO₂e per litre</td>
+                <td>US EPA AP-42 / DEFRA 2023</td>
+            </tr>
+            <tr>
+                <td>🗑️ Solid Waste</td>
+                <td>0.586</td>
+                <td>kg CO₂e per kg</td>
+                <td>IPCC 2006 – Average landfill CH₄ + CO₂</td>
+            </tr>
+            <tr>
+                <td>💧 Water</td>
+                <td>0.000344</td>
+                <td>kg CO₂e per litre</td>
+                <td>UK Water Industry Research / DEFRA</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>1.2 Offset Factors</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Factor</th>
+                <th>Unit</th>
+                <th>Reference</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>🌳 Tree (mature)</td>
+                <td>21.77 ÷ 12</td>
+                <td>kg CO₂ absorbed per tree per month</td>
+                <td>US Forest Service average – 48 lbs/yr ≈ 21.77 kg/yr</td>
+            </tr>
+            <tr>
+                <td>☀️ Solar Energy</td>
+                <td>0.716</td>
+                <td>kg CO₂ offset per unit (kWh)</td>
+                <td>Equals grid factor (displaced grid generation)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>2. Core Equations</h2>
+
+    <h3>2.1 Monthly Total Emissions</h3>
+    <div class="eq-box">
+        <span class="label">Formula:</span>
+        E_total = (E_kwh × 0.716) + (D_liters × 2.68) + (P_liters × 2.32)
+        + (W_kg × 0.586) + (Wtr_liters × 0.000344)
+
+        <span class="label" style="margin-top:10px">Where:</span>
+        E_kwh = Electricity consumed (kWh)
+        D_liters = Diesel consumed (litres)
+        P_liters = Petrol consumed (litres)
+        W_kg = Solid waste generated (kg)
+        Wtr_liters = Water consumed (litres)
+    </div>
+
+    <h3>2.2 Monthly Total Offsets</h3>
+    <div class="eq-box">
+        <span class="label">Formula:</span>
+        O_total = (T_planted × 21.77 / 12) + (S_units × 0.716)
+
+        <span class="label" style="margin-top:10px">Where:</span>
+        T_planted = Number of trees planted this month
+        S_units = Solar energy generated (kWh / units)
+        21.77 = kg CO₂ absorbed per mature tree per year
+        12 = Months per year (monthly proration)
+    </div>
+
+    <h3>2.3 Net Carbon Footprint</h3>
+    <div class="eq-box">
+        <span class="label">Formula:</span>
+        Net = E_total − O_total
+
+        <span class="label" style="margin-top:8px">Interpretation:</span>
+        Net ≤ 0 → ✅ Carbon Neutral (offsets exceed emissions)
+        Net &gt; 0 → ❌ Net Emitting (emissions exceed offsets)
+    </div>
+
+    <h3>2.4 Average Monthly Emissions (per user / per panchayat)</h3>
+    <div class="eq-box">
+        <span class="label">Formula:</span>
+        E_avg = (Σ E_total over N months) / N
+
+        E_per_capita = E_total / Population
+    </div>
+
+    <h3>2.5 Sector-wise Emission Breakdown</h3>
+    <div class="eq-box">
+        <span class="label">Individual sector contributions:</span>
+        E_electricity = E_kwh × 0.716
+        E_diesel = D_liters × 2.68
+        E_petrol = P_liters × 2.32
+        E_waste = W_kg × 0.586
+        E_water = Wtr_liters × 0.000344
+
+        <span class="label" style="margin-top:8px">Percentage share of each sector:</span>
+        Share_sector (%) = (E_sector / E_total) × 100
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>3. Worked Example</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Input</th>
+                <th>Value</th>
+                <th>Factor</th>
+                <th>CO₂e (kg)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Electricity</td>
+                <td>500 kWh</td>
+                <td>× 0.716</td>
+                <td>358.00</td>
+            </tr>
+            <tr>
+                <td>Diesel</td>
+                <td>50 L</td>
+                <td>× 2.68</td>
+                <td>134.00</td>
+            </tr>
+            <tr>
+                <td>Petrol</td>
+                <td>30 L</td>
+                <td>× 2.32</td>
+                <td>69.60</td>
+            </tr>
+            <tr>
+                <td>Waste</td>
+                <td>200 kg</td>
+                <td>× 0.586</td>
+                <td>117.20</td>
+            </tr>
+            <tr>
+                <td>Water</td>
+                <td>10,000 L</td>
+                <td>× 0.000344</td>
+                <td>3.44</td>
+            </tr>
+            <tr style="background:#f0fdf4">
+                <td><strong>Total Emissions</strong></td>
+                <td></td>
+                <td></td>
+                <td><strong>682.24 kg CO₂e</strong></td>
+            </tr>
+            <tr>
+                <td>Trees Planted</td>
+                <td>5</td>
+                <td>× 21.77/12</td>
+                <td>−9.07</td>
+            </tr>
+            <tr>
+                <td>Solar</td>
+                <td>100 units</td>
+                <td>× 0.716</td>
+                <td>−71.60</td>
+            </tr>
+            <tr style="background:#f0fdf4">
+                <td><strong>Total Offsets</strong></td>
+                <td></td>
+                <td></td>
+                <td><strong>80.67 kg CO₂e</strong></td>
+            </tr>
+            <tr style="background:#fef9c3">
+                <td><strong>Net Footprint</strong></td>
+                <td></td>
+                <td></td>
+                <td><strong>+601.57 kg CO₂e ❌</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>4. AI Prediction Logic</h2>
+    <p>The prediction engine uses Google Gemini AI. No manual formula is applied — the AI analyses the
+        <code>calculated_total_emission_kg</code> series and forecasts 6 months forward.</p>
+    <div class="info">
+        📌 Forecast start = Month immediately after the last data entry (e.g. if last data is March 2025 → forecast
+        starts April 2025).<br />
+        📌 Results are cached in <code>localStorage</code> and only re-generated when new data is submitted.
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <h2>5. Database – Clear Commands</h2>
+
+    <div class="warn">⚠️ These commands permanently delete data. Make a backup first if needed.</div>
+
+    <h3>5.1 Clear only monthly data (keeps users and settings)</h3>
+    <div class="cmd-box">
+        <span class="comment"># From the ecotrackhub project root:</span>
+        sqlite3 backend/carbontrackhub.db "DELETE FROM monthly_data;"
+    </div>
+
+    <h3>5.2 Clear monthly data AND carbon metrics</h3>
+    <div class="cmd-box">
+        sqlite3 backend/carbontrackhub.db "DELETE FROM monthly_data; DELETE FROM carbon_metrics;"
+    </div>
+
+    <h3>5.3 Clear all non-admin users (keeps admin account)</h3>
+    <div class="cmd-box">
+        sqlite3 backend/carbontrackhub.db "DELETE FROM monthly_data; DELETE FROM users WHERE role='user';"
+    </div>
+
+    <h3>5.4 Clear EVERYTHING – full reset (keeps table structure)</h3>
+    <div class="cmd-box">
+        <span class="danger"># ⚠ FULL WIPE – all data, all users except admin will be gone</span>
+        sqlite3 backend/carbontrackhub.db \
+        "DELETE FROM monthly_data;
+        DELETE FROM carbon_metrics;
+        DELETE FROM otp_verifications;
+        DELETE FROM users WHERE role='user';"
+    </div>
+
+    <h3>5.5 View current data before clearing</h3>
+    <div class="cmd-box">
+        <span class="comment"># Count records per table:</span>
+        sqlite3 backend/carbontrackhub.db \
+        "SELECT 'monthly_data', COUNT(*) FROM monthly_data
+        UNION ALL SELECT 'users', COUNT(*) FROM users
+        UNION ALL SELECT 'carbon_metrics', COUNT(*) FROM carbon_metrics;"
+
+        <span class="comment"># Show all monthly data entries:</span>
+        sqlite3 backend/carbontrackhub.db \
+        "SELECT month, year, user_id FROM monthly_data ORDER BY year, month;"
+    </div>
+
+    <h3>5.6 Using Python (alternative – reads same DB path)</h3>
+    <div class="cmd-box">
+        <span class="comment"># Run from backend/ directory:</span>
+        cd backend
+        source venve/bin/activate
+        python - &lt;&lt;'EOF'
+        from database import SessionLocal
+        from models import MonthlyData
+        db = SessionLocal()
+        db.query(MonthlyData).delete()
+        db.commit()
+        db.close()
+        print("✅ Monthly data cleared.")
+        EOF
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        CarbonTrackHub &nbsp;|&nbsp; GHG Protocol &amp; IPCC Guidelines &nbsp;|&nbsp;
+        Emission factors: CEA India (electricity), US EPA/DEFRA (fuels), IPCC 2006 (waste), UKWIR (water)
+    </div>
+
+</body>
+
+</html>

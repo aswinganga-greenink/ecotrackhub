@@ -209,7 +209,7 @@ export default function DataEntry() {
                         id={field.key}
                         type="number"
                         min="0"
-                        step="0.01"
+                        step="any"
                         placeholder={`Enter ${field.label.toLowerCase()}`}
                         value={formData[field.key as keyof FormData]}
                         onChange={(e) => handleInputChange(field.key as keyof FormData, e.target.value)}
